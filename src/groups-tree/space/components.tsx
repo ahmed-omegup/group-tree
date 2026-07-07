@@ -1,0 +1,105 @@
+import { concat, key, root, useHasBeenVisible } from '../tree-common'
+import type { Lens, StateKeys, StatesDomain } from '../tree-common'
+import type { CtxDom, SpacesNodes, SpaceArgs, SpacesItemsDomain } from './types'
+import type { TaxonomyGroupPartComponents } from '../group-part/types'
+
+export const makeSpaceComponents = <
+  Filter,
+  Items extends SpacesItemsDomain,
+  States extends StatesDomain,
+  Ctx extends CtxDom<States, Items, Ctx>,
+>(
+  args: SpaceArgs<Filter, Items, States, Ctx>,
+  subTree: TaxonomyGroupPartComponents<Filter, Items, States, Ctx, SpacesNodes<States>['root']>,
+) => {
+  const { useItemState, isVisible, useTaxonomies, useSpaces, useTreeSelector, useSetItemState } =
+    args
+  const { Taxonomy } = subTree
+
+  // ---- Space -----------------------------------------------------------
+
+  const SpaceContent = (props: {
+    state: States['CState']
+    ctx: Ctx
+    filter: Filter
+    item: Items['space']
+    path: Lens<StateKeys, SpacesNodes<States>['root'], SpacesNodes<States>['space']>
+  }) => {
+    const { ctx, filter, item, state, path } = props
+    const { updateWithList, update } = useSetItemState('space', path, item)
+    useTaxonomies(
+      item,
+      (updater, list) => updateWithList(updater, ['taxonomy', item._id, list]),
+      filter,
+    )
+
+    const taxonomies = useTreeSelector(s => s.lists.taxonomy[item._id] ?? [])
+
+    return ctx.renderItem.space({
+      item: { item, type: 'space' },
+      ctx,
+      state,
+      update,
+      child: {
+        taxonomies: taxonomies.map(taxonomy => (
+          <Taxonomy
+            key={taxonomy.item._id}
+            item={taxonomy.item}
+            ctx={ctx}
+            filter={filter}
+            extra={{
+              groupPart: null,
+              taxonomy,
+              path: concat(path, key('child'), key('taxonomies'), key(taxonomy.item._id)),
+            }}
+          />
+        )),
+      },
+    })
+  }
+
+  const Space = (props: { ctx: Ctx; filter: Filter; item: Items['space'] }) => {
+    const { item, ctx, filter } = props
+    const path: Lens<StateKeys, SpacesNodes<States>['root'], SpacesNodes<States>['space']> = concat(
+      key('child'),
+      key('spaces'),
+      key(item._id),
+    )
+    const { update } = useSetItemState('space', path, item)
+    useItemState.space({ filter, item, extra: {}, update })
+
+    const state = useTreeSelector(s => s.states.computed.child.spaces[item._id]?.item)
+    const visible = isVisible(state)
+    const hasBeenVisible = useHasBeenVisible(visible)
+    if (!hasBeenVisible) return null
+
+    return ctx.renderHideContainer({
+      visible,
+      ctx,
+      children:
+        state === undefined ? null : (
+          <SpaceContent item={item} ctx={ctx} filter={filter} state={state} path={path} />
+        ),
+    })
+  }
+
+  // ---- Spaces (root entry point) ----------------------------------------
+
+  const Spaces = ({ ctx, filter }: { ctx: Ctx; filter: Filter }) => {
+    const { updateWithList } = useSetItemState('root', root(), undefined)
+    useSpaces((updater, list) => updateWithList(updater, ['space', '', list]), filter)
+
+    const state = useTreeSelector(s => s.states.computed.item)
+    const spaces = useTreeSelector(s => s.lists.space[''] ?? [])
+
+    return ctx.renderContainer({
+      ctx,
+      state,
+      children: spaces.map(space => (
+        <Space key={space._id} item={space} ctx={ctx} filter={filter} />
+      )),
+    })
+  }
+
+  return { Spaces }
+}
