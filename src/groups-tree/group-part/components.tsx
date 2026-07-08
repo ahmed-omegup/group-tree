@@ -1,4 +1,4 @@
-import type { NodeLayerDomain, StatesDomain } from '../tree-common'
+import type { ListItemBrand, NodeLayerDomain, StatesDomain, Tree } from '../tree-common'
 import { concat, get, key, useHasBeenVisible } from '../tree-common'
 import { subGroupPartId } from './tree-builder'
 import type {
@@ -10,10 +10,26 @@ import type {
   TaxonomyListItem,
 } from './types'
 
+/**
+ * Taxonomy lists are keyed by a space or groupPart id prefix, but that prefix
+ * can fall at different depths (e.g. under `education` or `education_grade_001`).
+ *
+ * Given a groupPart id split on `_`, finds the matching list entry, then walks
+ * remaining segments by matching taxonomy `subid` (skipping odd-index instance
+ * segments like `001`).
+ *
+ * Examples for groupPart `education_grade_001` → `['education', 'grade', '001']`:
+ * - list keyed at `education`: match subid `grade` → return its `.children`
+ * - list keyed at `education_grade_001`: return that list directly (no further walk)
+ *
+ * @param idParts parts of the space / groupPart id, split by `_`
+ * @param list taxonomy lists indexed by parent id (space or groupPart)
+ * @returns taxonomy tree nodes at the resolved level
+ */
 export const getTaxonomyChildren = <Items extends TaxonomyItemsDomain>(
   idParts: string[],
   list: Record<string, TaxonomyListItem<Items>['taxonomy'][]>,
-) => {
+): Tree<Items['taxonomy'], ListItemBrand<'taxonomy'>>[] => {
   let last = 0
   let acc = idParts[0]!
   while (!list[acc] && ++last < idParts.length) {
@@ -25,6 +41,7 @@ export const getTaxonomyChildren = <Items extends TaxonomyItemsDomain>(
         .slice(last + 1, idParts.length)
         .reduce(
           (acc, id, i) =>
+            // i is odd → instance segment, like 001, skip; i is even → taxonomy subid, find child
             i & 1 ? acc : acc.find(taxonomy => taxonomy.item.subid === id)!.children,
           list[acc]!,
         )
