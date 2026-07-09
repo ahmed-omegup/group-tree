@@ -3,8 +3,8 @@ import type { CtxDom, SpacesItemsDomain } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import { isVisible } from '../internal'
 import { spacesInitialState } from '../internal.space'
-import type { SelectableSpacesDataHooks } from './SelectableSpacesTree'
-import { selectableSpaceSingleReduce, type SingleStates } from './single.reduce'
+import type { SelectableSpacesDataHooks } from '../selectable/SelectableSpacesTree'
+import { selectableSpaceSingleReduce, type SingleStates } from './single'
 import { externExpandSpacesSingle, type SpacesExternalSingle } from './space.single'
 
 export const SelectableSpacesTreeSingleHOC = <
