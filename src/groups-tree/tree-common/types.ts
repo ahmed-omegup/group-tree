@@ -21,7 +21,6 @@ export type TreeShapes<Levels extends string, Shapes extends TreeShapes<Levels, 
 // ---- Tree node -----------------------------------------------------------
 
 export type TreeNodeDomain<T, L extends string> = { item: T & { type: L }; child: unknown }
-export type TreeNodesDomain<T, Levels extends string> = { [L in Levels]: TreeNodeDomain<T, L> }
 /** A single node in the typed tree at a given shape level. */
 export type TreeNode<T, Shape extends TreeShape<Shape>> = {
   child: { [K in keyof Shape['child']]: Record<string, TreeNode<T, Shape['child'][K]>> }
@@ -227,17 +226,6 @@ export type StoreArgs<
   initialData: States['IData']
 }
 
-export type GeneralInitialState<
-  in States extends TreeStatesDomain,
-  in Levels extends string,
-  Nodes extends TreeNodesDomain<unknown, Levels>,
-> = {
-  [L in Levels]: (
-    id: string,
-    newParent?: States['IState'],
-    oldParent?: States['CState'],
-  ) => Nodes[L]
-}
 export type InitialState<
   in States extends TreeStatesDomain,
   in Levels extends string,
