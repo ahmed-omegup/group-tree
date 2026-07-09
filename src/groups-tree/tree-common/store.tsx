@@ -1,53 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
 import { get, set, type Lens } from '../path'
-import { ExternalBrand, ListItemDomain, Lists, NodeLayerDomain, SomeListOf } from './types'
-import type { Data, StateKeys, StatesDomain, StoreArgs, Update, UpdateState } from './types'
+import type { ExternalBrand, ListItemDomain, Lists, NodeLayerDomain, SomeListOf } from './types'
+import type { StateKeys, StatesDomain, StoreArgs, Update, UpdateState } from './types'
 import type { InternalUpdater } from './types'
+import type { StoreResult, TreeProviderArgs, StoreState, StateContext } from './store-types'
+import type { UseSetItemState, UseTreeSelector } from './store-types'
 
 // ---- List helpers ---------------------------------------------------------
-
-// ---- Exported store state types -------------------------------------------
-
-export type StoreState<
-  States extends StatesDomain,
-  ItemKeys extends string,
-  RootNode extends NodeLayerDomain<States>,
-  ListItems extends ListItemDomain<ItemKeys>,
-> = {
-  states: {
-    internal: RootNode['IState']
-    external: RootNode['EState']
-    computed: RootNode['CState']
-  }
-  lists: Lists<ItemKeys, ListItems>
-  data: Data<States>
-}
-
-export type UseTreeSelector<
-  States extends StatesDomain,
-  RootNode extends NodeLayerDomain<States>,
-  ItemKeys extends string,
-  ListItems extends ListItemDomain<ItemKeys>,
-> = <T>(selector: (state: StoreState<States, ItemKeys, RootNode, ListItems>) => T) => T
-
-export type UseSetItemState<
-  States extends StatesDomain,
-  ItemKeys extends string,
-  Levels extends string,
-  RootNode extends NodeLayerDomain<States>,
-  ListItems extends ListItemDomain<ItemKeys>,
-> = <L extends Levels, NodeL extends NodeLayerDomain<States, L>>(
-  level: L,
-  path: Lens<StateKeys, RootNode, NodeL>,
-  item: unknown,
-) => {
-  update: Update<States, NodeL>
-  updateWithList: (
-    updater: InternalUpdater<States, NodeL>,
-    list: SomeListOf<ItemKeys, ListItems>,
-  ) => void
-}
 
 // ---- Factory --------------------------------------------------------------
 
@@ -65,7 +24,7 @@ export const makeStoreFns = <
   Context extends null | { brand: 'context' },
 >(
   args: StoreArgs<States, ItemKeys, External, RootNode, ListItems, Context>,
-) => {
+): StoreResult<States, ItemKeys, External, Levels, RootNode, ListItems, Context> => {
   const {
     compute,
     listsToInternalState,
@@ -113,14 +72,9 @@ export const makeStoreFns = <
 
   // ---- Context -----------------------------------------------------------
 
-  const TreeStoreContext = createContext<{
-    state: ThisStoreState
-    dispatch: <ChildNode extends Record<StateKeys, unknown>>(
-      action: (state: ThisStoreState) => Action<ChildNode> | undefined,
-    ) => void
-    changeRef: { current: ((value: External) => void) | undefined }
-    context: Context
-  } | null>(null)
+  type ThisStateContext = StateContext<States, ItemKeys, External, RootNode, ListItems, Context>
+
+  const TreeStoreContext = createContext<ThisStateContext | null>(null)
 
   const useTreeContext = () => {
     const value = useContext(TreeStoreContext)
@@ -206,22 +160,13 @@ export const makeStoreFns = <
 
   // ---- TreeProvider ------------------------------------------------------
 
-  const TreeProvider = ({
-    children,
-    value,
-    onChange,
-    context,
-  }: {
-    children: ReactNode
-    value: External
-    onChange?: (value: External) => void
-    context: Context
-  }) => {
-    const [internal, setInternal] = useState<Internal & {v: number}>(() => ({
+  const TreeProvider = (props: TreeProviderArgs<External, Context>) => {
+    const { children, value, onChange, context } = props
+    const [internal, setInternal] = useState<Internal & { v: number }>(() => ({
       data: initialData,
       state: initialRootState(context),
       lists: initialLists,
-      v: 0
+      v: 0,
     }))
 
     const changeRef = useRef(onChange)
@@ -257,7 +202,7 @@ export const makeStoreFns = <
             return internal
           }
           const newState = treeUpdateReducer(state, actionValue, context)
-          return {...newState, v: internal.v + 1}
+          return { ...newState, v: internal.v + 1 }
         })
       },
       [internalToState],

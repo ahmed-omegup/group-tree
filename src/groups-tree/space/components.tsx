@@ -1,6 +1,14 @@
 import { concat, key, root, useHasBeenVisible } from '../tree-common'
-import type { Lens, StateKeys, StatesDomain } from '../tree-common'
-import type { CtxDom, SpacesNodes, SpaceArgs, SpacesItemsDomain } from './types'
+import type { Lens, StateKeys, StatesDomain, StoreCommonResult } from '../tree-common'
+import type {
+  CtxDom,
+  SpacesNodes,
+  SpaceArgs,
+  SpacesItemsDomain,
+  SpaceItemKeys,
+  SpacesListItem,
+  SpacesTreeLevel,
+} from './types'
 import type { TaxonomyGroupPartComponents } from '../group-part/types'
 
 export const makeSpaceComponents = <
@@ -9,11 +17,18 @@ export const makeSpaceComponents = <
   States extends StatesDomain,
   Ctx extends CtxDom<States, Items, Ctx>,
 >(
+  storeResult: StoreCommonResult<
+    States,
+    SpaceItemKeys,
+    SpacesTreeLevel,
+    SpacesNodes<States>['root'],
+    SpacesListItem<Items>
+  >,
   args: SpaceArgs<Filter, Items, States, Ctx>,
   subTree: TaxonomyGroupPartComponents<Filter, Items, States, Ctx, SpacesNodes<States>['root']>,
 ) => {
-  const { useItemState, isVisible, useTaxonomies, useSpaces, useTreeSelector, useSetItemState } =
-    args
+  const { useSetItemState, useTreeSelector } = storeResult
+  const { useItemState, isVisible, useTaxonomies, useSpaces } = args
   const { Taxonomy } = subTree
 
   // ---- Space -----------------------------------------------------------

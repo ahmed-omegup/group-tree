@@ -7,7 +7,7 @@ import type {
   StateKeys,
   StatesDomain,
   Tree,
-  TreeNode,
+  TreeNodes,
   Update,
   UseItemState,
   UseSetItemState,
@@ -23,10 +23,13 @@ export type TaxonomyShape = {
 
 // ---- Node-by-level helpers (taxonomy / groupPart only) -------------------
 
-export type TaxonomyNodeByLevel<T> = {
-  taxonomy: TreeNode<T, TaxonomyShape>
-  groupPart: TreeNode<T, TaxonomyShape['child']['groupParts']>
+export type TaxonomyItemKeys = 'groupPart' | 'taxonomy'
+
+export type TaxonomyShapes = {
+  taxonomy: TaxonomyShape
+  groupPart: TaxonomyShape['child']['groupParts']
 }
+export type TaxonomyNodeByLevel<T> = TreeNodes<T, TaxonomyItemKeys, TaxonomyShapes>
 
 export type TaxonomyNodeLayers<States extends StatesDomain> = {
   [L in TaxonomyItemKeys]: {
@@ -127,12 +130,25 @@ export type TaxonomyGroupPartComponents<
   Filter,
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
-  Ctx,
+  Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>,
   RootNode extends NodeLayerDomain<States> = NodeLayerDomain<States>,
 > = {
   GroupPart: Component<'groupPart', Filter, Items, States, Ctx, RootNode>
   Taxonomy: Component<'taxonomy', Filter, Items, States, Ctx, RootNode>
 }
+
+export type TaxonomyGroupPartMakeComponents<
+  Filter,
+  Items extends TaxonomyItemsDomain,
+  States extends StatesDomain,
+  RootNode extends NodeLayerDomain<States> = NodeLayerDomain<States>,
+> = <Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>>() => TaxonomyGroupPartComponents<
+  Filter,
+  Items,
+  States,
+  Ctx,
+  RootNode
+>
 
 // ---- List item types (owned here so group-part does not import from space) --
 
@@ -140,8 +156,6 @@ export type TaxonomyListItem<Items extends TaxonomyItemsDomain> = {
   taxonomy: Tree<Items['taxonomy'], ListItemBrand<'taxonomy'>>
   groupPart: Items['groupPart'] & ListItemBrand<'groupPart'>
 }
-
-export type TaxonomyItemKeys = 'groupPart' | 'taxonomy'
 
 export type UseTaxonomyItemState<
   Filter,
@@ -174,13 +188,20 @@ export type TaxonomyGroupPartArgs<
   Filter,
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
-  Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>,
   RootNode extends NodeLayerDomain<States>,
   ListItems extends TaxonomyListItem<Items>,
 > = {
   useItemState: UseTaxonomyItemState<Filter, Items, States, RootNode>
   isVisible: (state: States['CState'] | undefined) => boolean
   useGroupParts: UseGroupParts<Filter, Items, States, ListItems>
+}
+
+export type TaxonomyGroupPartStore<
+  Items extends TaxonomyItemsDomain,
+  States extends StatesDomain,
+  RootNode extends NodeLayerDomain<States>,
+  ListItems extends TaxonomyListItem<Items>,
+> = {
   useTreeSelector: UseTreeSelector<States, RootNode, TaxonomyItemKeys, ListItems>
   useSetItemState: UseSetItemState<States, TaxonomyItemKeys, TaxonomyItemKeys, RootNode, ListItems>
 }

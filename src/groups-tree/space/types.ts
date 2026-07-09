@@ -4,11 +4,11 @@ import type {
   TaxonomyItemsDomain,
   TaxonomyGroupPartExtras,
   TaxonomyListItem,
-  TaxonomyNodeByLevel,
   TaxonomyShape,
   TaxonomyItemKeys,
   UseTaxonomyItemState,
   RenderItem,
+  TaxonomyShapes,
 } from '../group-part/types'
 import type {
   ListItemBrand,
@@ -16,7 +16,7 @@ import type {
   SomeListOf,
   StateKeys,
   StatesDomain,
-  TreeNode,
+  TreeNodes,
   UseItemState,
 } from '../tree-common'
 
@@ -39,13 +39,15 @@ export type SpacesShape = {
   type: 'root'
   child: { spaces: { type: 'space'; child: { taxonomies: TaxonomyShape } } }
 }
+export type SpaceShapes = TaxonomyShapes & {
+  root: SpacesShape,
+  space: SpacesShape['child']['spaces'],
+}
+
 
 // ---- Node-by-level (all four levels) -------------------------------------
 
-export type SpacesNodeByLevel<T> = TaxonomyNodeByLevel<T> & {
-  root: TreeNode<T, SpacesShape>
-  space: TreeNode<T, SpacesShape['child']['spaces']>
-}
+export type SpacesNodeByLevel<T> = TreeNodes<T, SpacesTreeLevel, SpaceShapes>
 
 export type SpacesTreeLevel = 'root' | 'space' | TaxonomyItemKeys
 
@@ -154,17 +156,4 @@ export type SpaceArgs<
     setItemData: SetItemData<States, SpacesNodes<States>['root'], SpacesListItem<Items>['space']>,
     filter: Filter,
   ) => void
-  useTreeSelector: UseTreeSelector<
-    States,
-    SpacesNodes<States>['root'],
-    'space' | 'taxonomy' | 'groupPart',
-    SpacesListItem<Items>
-  >
-  useSetItemState: UseSetItemState<
-    States,
-    'space' | 'taxonomy' | 'groupPart',
-    SpacesTreeLevel,
-    SpacesNodes<States>['root'],
-    SpacesListItem<Items>
-  >
 }

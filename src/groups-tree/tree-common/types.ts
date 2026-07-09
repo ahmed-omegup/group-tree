@@ -14,14 +14,21 @@ export type TreeShape<F extends TreeShape<F>> = {
   child: { [K in keyof F['child']]: TreeShape<F['child'][K]> }
 }
 
+export type TreeShapes<Levels extends string, Shapes extends TreeShapes<Levels, Shapes>> = {
+  [L in Levels]: TreeShape<Shapes[L]>
+}
+
 // ---- Tree node -----------------------------------------------------------
 
 export type TreeNodeDomain<T, L extends string> = { item: T & { type: L }; child: unknown }
-
+export type TreeNodesDomain<T, Levels extends string> = { [L in Levels]: TreeNodeDomain<T, L> }
 /** A single node in the typed tree at a given shape level. */
 export type TreeNode<T, Shape extends TreeShape<Shape>> = {
   child: { [K in keyof Shape['child']]: Record<string, TreeNode<T, Shape['child'][K]>> }
 } & TreeNodeDomain<T, Shape['type']>
+export type TreeNodes<T, Levels extends string, Shapes extends TreeShapes<Levels, Shapes>> = {
+  [L in Levels]: TreeNode<T, Shapes[L]>
+}
 
 // ---- State layer phantom brands ------------------------------------------
 // Optional brand properties that keep the three state kinds from being mixed up.
@@ -50,14 +57,17 @@ export type StatesDomain = TreeStatesDomain & {
   EData: EDataBrand
 }
 
-export type NodeLayerDomain<States extends StatesDomain, L extends string = string> = {
+export type NodeLayerDomain<States extends TreeStatesDomain, L extends string = string> = {
   [K in keyof TreeStatesDomain]: TreeNodeDomain<States[K], L>
 }
 
-export type NodesDomain<States extends StatesDomain, Levels extends string> = {
+export type NodesDomain<States extends TreeStatesDomain, Levels extends string> = {
   [L in Levels]: NodeLayerDomain<States, L>
 }
 
+export type NodeDomain<State, Levels extends string> = {
+  [L in Levels]: TreeNodeDomain<State, L>
+}
 // ---- State update types --------------------------------------------------
 
 export type UpdateState<States extends StatesDomain, NodeLayer extends NodeLayerDomain<States>> = {
@@ -121,7 +131,7 @@ export type Reduce<
   States extends StatesDomain,
   Levels extends string,
   ItemKeys extends string,
-  ListItems extends ListItemDomain<ItemKeys>,
+  in ListItems extends ListItemDomain<ItemKeys>,
   Nodes extends NodesDomain<States, Levels>,
 > = {
   [L in Levels]: (
@@ -217,10 +227,21 @@ export type StoreArgs<
   initialData: States['IData']
 }
 
+export type GeneralInitialState<
+  in States extends TreeStatesDomain,
+  in Levels extends string,
+  Nodes extends TreeNodesDomain<unknown, Levels>,
+> = {
+  [L in Levels]: (
+    id: string,
+    newParent?: States['IState'],
+    oldParent?: States['CState'],
+  ) => Nodes[L]
+}
 export type InitialState<
-  States extends StatesDomain,
-  Levels extends string,
-  Nodes extends NodesDomain<States, Levels>,
+  in States extends TreeStatesDomain,
+  in Levels extends string,
+  out Nodes extends NodesDomain<States, Levels>,
 > = {
   [L in Levels]: (
     id: string,
@@ -228,7 +249,6 @@ export type InitialState<
     oldParent?: States['CState'],
   ) => Nodes[L]['IState']
 }
-
 /** Discriminated union: one tuple per list key in Lists. */
 export type SomeListOf<Keys extends string, ListItems extends ListItemDomain<Keys>> = {
   [K in Keys]: [key: K, path: string, items: ListItems[K][]]
