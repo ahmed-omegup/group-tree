@@ -42,6 +42,7 @@ export const getTaxonomyChildren = <Items extends TaxonomyItemsDomain>(
         .slice(last + 1, idParts.length)
         .reduce(
           (acc, id, i) =>
+            // i is odd → instance segment, like 001, skip; i is even → taxonomy subid, find child
             i & 1 ? acc : acc.find(taxonomy => taxonomy.item.subid === id)!.children,
           list[acc]!,
         )
