@@ -1,9 +1,10 @@
 import {
   makeTaxonomyGroupPartComponents,
-  TaxonomyGroupPartArgs,
+  TaxonomyGroupPartHooks,
   TaxonomyItemKeys,
   TaxonomyItemsDomain,
   TaxonomyListItem,
+  UseTaxonomyItemState,
 } from './group-part'
 import type { ListItemDomain, NodeLayerDomain, StatesDomain, StoreArgs } from './tree-common'
 import { makeStoreFns } from './tree-common'
@@ -20,7 +21,9 @@ export const GroupsTreeHOC = <
   Context extends null | { brand: 'context' },
 >(
   store: StoreArgs<States, ExtraKeys | TaxonomyItemKeys, External, RootNode, ListItems, Context>,
-  args: TaxonomyGroupPartArgs<Filter, Items, States, RootNode, ListItems>,
+  args: TaxonomyGroupPartHooks<Filter, Items, States, ListItems>,
+  useItemState: UseTaxonomyItemState<Filter, Items, States, RootNode>,
+  isVisible: (state: States['CState'] | undefined) => boolean,
 ) => {
   const storeResult = makeStoreFns(store)
 
@@ -30,7 +33,7 @@ export const GroupsTreeHOC = <
     States,
     RootNode,
     ListItems
-  >(args, storeResult)
+  >(args, storeResult, useItemState, isVisible)
 
-  return { makeComponents, ...storeResult }
+  return { makeComponents, storeResult }
 }

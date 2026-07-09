@@ -1,7 +1,11 @@
-import type { TaxonomyGroupPartCtxDom } from '../groups-tree/group-part'
+import type {
+  TaxonomyGroupPartCtxDom,
+  TaxonomyNodeLayers,
+  UseTaxonomyItemState,
+} from '../groups-tree/group-part'
 import { TaxonomyItemsDomain } from '../groups-tree/group-part'
-import { GroupPartDataHooks, GroupPartTreeHOC } from '../groups-tree/GroupPartTree'
-import { groupPartInitialState } from '../internal'
+import { GPRoot, GroupPartDataHooks, GroupPartTreeHOC } from '../groups-tree/GroupPartTree'
+import { groupPartInitialState, isVisible } from '../internal'
 import { externExpandGroupPartMulti, GroupPartExternalMulti } from './group-part.multi'
 import { selectableGroupPartReduce, SelectableStates } from './reduce'
 
@@ -11,6 +15,7 @@ export const SelectableGroupPartTreeHOC = <
   Ctx extends TaxonomyGroupPartCtxDom<SelectableStates, Items, Ctx>,
 >(
   dataHooks: GroupPartDataHooks<Filter, Items, SelectableStates>,
+  useItemState: UseTaxonomyItemState<Filter, Items, SelectableStates, GPRoot<SelectableStates>>,
 ) =>
   GroupPartTreeHOC<Filter, Items, SelectableStates, GroupPartExternalMulti, Ctx>(
     externExpandGroupPartMulti(),
@@ -19,4 +24,6 @@ export const SelectableGroupPartTreeHOC = <
       reduce: selectableGroupPartReduce,
     },
     dataHooks,
+    useItemState,
+    isVisible,
   )

@@ -130,4 +130,7 @@ export {
   common as internalCommon,
   initialState as groupPartInitialState,
 }
+
+export const isVisible = (state: CState | undefined) => state?.visibility === 'visible'
+
 export type { States as InternalStates }

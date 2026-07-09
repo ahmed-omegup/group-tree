@@ -2,13 +2,14 @@ import type { ListItemBrand, NodeLayerDomain, StatesDomain, Tree } from '../tree
 import { concat, get, key, useHasBeenVisible } from '../tree-common'
 import { subGroupPartId } from './tree-builder'
 import type {
-  TaxonomyGroupPartArgs,
+  TaxonomyGroupPartHooks,
   TaxonomyGroupPartStore,
   TaxonomyGroupPartMakeComponents,
   TaxonomyGroupPartCtxDom,
   TaxonomyGroupPartExtras,
   TaxonomyItemsDomain,
   TaxonomyListItem,
+  UseTaxonomyItemState,
 } from './types'
 
 /**
@@ -60,11 +61,13 @@ export const makeTaxonomyGroupPartComponents = <
   RootNode extends NodeLayerDomain<States>,
   ListItems extends TaxonomyListItem<Items>,
 >(
-  args: TaxonomyGroupPartArgs<Filter, Items, States, RootNode, ListItems>,
+  args: TaxonomyGroupPartHooks<Filter, Items, States, ListItems>,
   store: TaxonomyGroupPartStore<Items, States, RootNode, ListItems>,
+  useItemState: UseTaxonomyItemState<Filter, Items, States, RootNode>,
+  isVisible: (state: States['CState'] | undefined) => boolean
 ): TaxonomyGroupPartMakeComponents<Filter, Items, States, RootNode> =>
 <Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>>() => {
-  const { useItemState, isVisible, useGroupParts } = args
+  const { useGroupParts } = args
   const { useTreeSelector, useSetItemState } = store
 
   // ---- GroupPart -------------------------------------------------------

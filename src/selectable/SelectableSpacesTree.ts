@@ -1,8 +1,9 @@
 import { SpacesTreeHOC } from '../groups-tree'
-import type { TaxonomyGroupPartArgs } from '../groups-tree/group-part'
+import type { TaxonomyGroupPartHooks } from '../groups-tree/group-part'
 import type { CtxDom, SpacesItemsDomain, SpacesListItem, SpacesNodes } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
+import { isVisible } from '../internal';
 import { spacesInitialState } from '../internal.space'
 import type { SelectableStates } from './reduce'
 import { externExpandSpacesMulti, type SpacesExternalMulti } from './space.multi'
@@ -14,19 +15,14 @@ export type SelectableSpacesDataHooks<
   States extends SelectableStates = SelectableStates,
 > = SpacesDataHooks<Filter, Items, States> &
   Pick<
-    TaxonomyGroupPartArgs<
+    TaxonomyGroupPartHooks<
       Filter,
       Items,
       States,
-      SpacesNodes<States>['root'],
       SpacesListItem<Items>
     >,
     'useGroupParts'
-  > & {
-    useItemState: UseSpaceItemState<Filter, Items, States>
-  }
-
-const isVisible = (state: SelectableStates['CState'] | undefined) => state?.visibility === 'visible'
+  >
 
 export const SelectableSpacesTreeHOC = <
   Filter,
@@ -34,6 +30,7 @@ export const SelectableSpacesTreeHOC = <
   Ctx extends CtxDom<SelectableStates, Items, Ctx>,
 >(
   dataHooks: SelectableSpacesDataHooks<Filter, Items, SelectableStates>,
+    useItemState: UseSpaceItemState<Filter, Items, SelectableStates>
 ) => {
   return SpacesTreeHOC<Filter, Items, SelectableStates, SpacesExternalMulti, Ctx>(
     externExpandSpacesMulti<Items, Ctx>(),
@@ -43,5 +40,6 @@ export const SelectableSpacesTreeHOC = <
       reduce: selectableSpaceReduce,
       isVisible,
     },
+    useItemState
   )
 }

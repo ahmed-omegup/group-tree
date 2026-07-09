@@ -184,15 +184,12 @@ export type UseGroupParts<
   setItemData: SetItemData<States, TaxonomyNodeLayers<States>['taxonomy'], ListItems['groupPart']>,
 ) => void
 
-export type TaxonomyGroupPartArgs<
+export type TaxonomyGroupPartHooks<
   Filter,
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
-  RootNode extends NodeLayerDomain<States>,
   ListItems extends TaxonomyListItem<Items>,
 > = {
-  useItemState: UseTaxonomyItemState<Filter, Items, States, RootNode>
-  isVisible: (state: States['CState'] | undefined) => boolean
   useGroupParts: UseGroupParts<Filter, Items, States, ListItems>
 }
 
