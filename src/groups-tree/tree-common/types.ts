@@ -64,9 +64,6 @@ export type NodesDomain<States extends TreeStatesDomain, Levels extends string> 
   [L in Levels]: NodeLayerDomain<States, L>
 }
 
-export type NodeDomain<State, Levels extends string> = {
-  [L in Levels]: TreeNodeDomain<State, L>
-}
 // ---- State update types --------------------------------------------------
 
 export type UpdateState<States extends StatesDomain, NodeLayer extends NodeLayerDomain<States>> = {
