@@ -1,14 +1,7 @@
 import { concat, key, root, useHasBeenVisible } from '../tree-common'
 import type { Lens, StateKeys, StatesDomain, StoreCommonResult } from '../tree-common'
-import type {
-  CtxDom,
-  SpacesNodes,
-  SpaceArgs,
-  SpacesItemsDomain,
-  SpaceItemKeys,
-  SpacesListItem,
-  SpacesTreeLevel,
-} from './types'
+import type { CtxDom, SpacesNodes, SpaceArgs, SpacesItemsDomain } from './types'
+import type { SpaceItemKeys, SpacesListItem, SpacesTreeLevel } from './types'
 import type { TaxonomyGroupPartComponents } from '../group-part/types'
 
 export const makeSpaceComponents = <
