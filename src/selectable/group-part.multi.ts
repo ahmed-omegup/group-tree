@@ -5,7 +5,7 @@ import {
 } from '../groups-tree/group-part'
 import { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
 import { collectItemGroupPartIds, expandGroupPart } from './multi'
-import { SelectableStates } from './reduce'
+import type { SelectableStates } from './multi'
 
 type External = ExternalBrand & {
   subIds: string[]

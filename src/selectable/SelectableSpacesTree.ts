@@ -5,14 +5,15 @@ import type { UseSpaceItemState } from '../groups-tree/space/types'
 import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
 import { isVisible } from '../internal';
 import { spacesInitialState } from '../internal.space'
-import type { SelectableStates } from './reduce'
+import type { StatesDomain } from '../groups-tree/tree-common'
+import type { SelectableStates } from './multi'
 import { externExpandSpacesMulti, type SpacesExternalMulti } from './space.multi'
 import { selectableSpaceReduce } from './space.reduce'
 
 export type SelectableSpacesDataHooks<
   Filter,
   Items extends SpacesItemsDomain,
-  States extends SelectableStates = SelectableStates,
+  States extends StatesDomain = SelectableStates,
 > = SpacesDataHooks<Filter, Items, States> &
   Pick<
     TaxonomyGroupPartHooks<

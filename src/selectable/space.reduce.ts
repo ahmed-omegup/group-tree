@@ -2,8 +2,8 @@ import type { SpacesListItem, SpacesNodes, SpacesTreeLevel } from '../groups-tre
 import type { SpaceItemKeys, SpacesItemsDomain } from '../groups-tree/space'
 import type { Reduce } from '../groups-tree/tree-common'
 
-import { allSelected, selectableGroupPartReduce } from './reduce'
-import { someSelected, type SelectableStates as States } from './reduce'
+import { allSelected, selectableGroupPartReduce } from './multi'
+import { someSelected, type SelectableStates as States } from './multi'
 import { spacesReduce } from '../internal.space'
 
 export const selectableSpaceReduce: Reduce<
