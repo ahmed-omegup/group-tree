@@ -2,7 +2,7 @@ import type { SpacesItemsDomain, SpacesTreeLevel } from './groups-tree/space'
 import type { SpacesNodes, SpacesListItem, SpaceItemKeys } from './groups-tree/space'
 import { InitialState, Reduce, StatesDomain } from './groups-tree/tree-common'
 import type { InternalStates, ReplaceIState } from './internal'
-import { groupPartInitialState, groupPartReduce, internalCommon, listState } from './internal'
+import { groupPartInitialState, groupPartReduce, internalCommon, listState, visibility } from './internal'
 
 type IState = InternalStates['IState']
 
@@ -50,8 +50,7 @@ const reduce: Reduce<
     return {
       brand: 'CState',
       type: 'space',
-      visibility:
-        iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady',
+      visibility: visibility(iState),
       list: listState(iState, children),
       ...(Object.keys(lists.space).length > 1
         ? {

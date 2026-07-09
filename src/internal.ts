@@ -85,6 +85,9 @@ export const listState = (
       ? 'populated'
       : 'none-matching'
 
+export const visibility = (iState: IState) =>
+  iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady'
+
 const reduce: Reduce<
   States,
   TaxonomyItemKeys,
@@ -97,8 +100,7 @@ const reduce: Reduce<
     const node: States['CState'] & { type: 'groupPart' } = {
       type: 'groupPart',
       brand: 'CState',
-      visibility:
-        iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady',
+      visibility: visibility(iState),
       isHeader: true,
       list: childless ? 'childless' : listState(iState, children),
       collapsed: childless ? 'n.a' : iState.collapsed ? 'yes' : 'no',
@@ -112,8 +114,7 @@ const reduce: Reduce<
     return {
       brand: 'CState',
       type: 'taxonomy',
-      visibility:
-        iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady',
+      visibility: visibility(iState),
       list: listState(iState, children),
       ...(isHeader
         ? {
