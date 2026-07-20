@@ -176,7 +176,7 @@ export const makeStoreFns = <
 
     const internalToState = useCallback(
       (x: Internal): ThisStoreState => {
-        const [externalState, externalData] = expand(value, x.state, x.data)
+        const [externalState, externalData] = expand(value, x)
         const computed = compute(x, { state: externalState, data: externalData })
         return {
           states: { computed, external: externalState, internal: x.state },

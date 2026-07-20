@@ -1,6 +1,6 @@
-import { SpaceShapes, SpacesItemsDomain, SpacesNodes } from '../groups-tree/space'
+import type { SpaceShapes, SpacesItemsDomain, SpacesNodes } from '../groups-tree/space'
 import type { CtxDom } from '../groups-tree/space'
-import { Expand, Extern, ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
+import type { Expand, Extern, ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
 import { collectItemIds, collectItems, expandTaxonomy, makeExpand } from './multi'
 import { collectTaxonomyIds, makeSpitter, taxonomiesEmpty, handleChildren } from './multi'
 import type { SelectableStates as States } from './multi'
@@ -33,8 +33,10 @@ const expandRoot = makeExpand<'root', SpaceShapes>({
   merge: id,
 })
 
-export const expand: Expand<States, External, SpacesNodes<States>['root']> = (external, tree) => [
-  expandRoot(external.selectedIds, tree, false),
+type SpaceNode = SpacesNodes<States>['root']
+
+export const expand: Expand<States, External, SpaceNode, never, {}> = (external, tree) => [
+  expandRoot(external.selectedIds, tree.state, false),
   { brand: 'EData' },
 ]
 
@@ -48,12 +50,7 @@ export const extern: Extern<States, External, SpacesNodes<States>['root']> = com
   selectedIds: collectSpaceIds('', computed.child.spaces),
 })
 
-export const externExpandSpacesMulti = <
-  Items extends SpacesItemsDomain,
-  Ctx extends CtxDom<States, Items, Ctx>,
->(): ExternExpand<States, External, SpacesNodes<States>['root']> => ({
-  expand,
-  extern,
-})
+type ThisExternExpand = ExternExpand<States, External, SpaceNode, never, {}>
+export const externExpandSpacesMulti: ThisExternExpand = { expand, extern }
 
 export type { External as SpacesExternalMulti }

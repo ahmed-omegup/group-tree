@@ -98,7 +98,7 @@ export type TaxonomyGroupPartCtx<
   Items extends TaxonomyItemsDomain & Record<ExtraKey, unknown>,
   Ctx,
   NodeLayers extends TaxonomyNodeLayers<States> & Record<ExtraKey, NodeLayerDomain<States>>,
-> = {
+> = Ctx & {
   renderItem: {
     [K in keyof TaxonomyItemsDomain | ExtraKey]: RenderItem<States, K, Items, Ctx, NodeLayers>
   }
@@ -130,11 +130,12 @@ export type TaxonomyGroupPartComponents<
   Filter,
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
-  Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>,
+  Ctx,
   RootNode extends NodeLayerDomain<States> = NodeLayerDomain<States>,
+  CtxAug = TaxonomyGroupPartCtxDom<States, Items, Ctx>,
 > = {
-  GroupPart: Component<'groupPart', Filter, Items, States, Ctx, RootNode>
-  Taxonomy: Component<'taxonomy', Filter, Items, States, Ctx, RootNode>
+  Taxonomy: Component<'taxonomy', Filter, Items, States, CtxAug, RootNode>
+  GroupPart: Component<'groupPart', Filter, Items, States, CtxAug, RootNode>
 }
 
 export type TaxonomyGroupPartMakeComponents<
@@ -142,13 +143,7 @@ export type TaxonomyGroupPartMakeComponents<
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
   RootNode extends NodeLayerDomain<States> = NodeLayerDomain<States>,
-> = <Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>>() => TaxonomyGroupPartComponents<
-  Filter,
-  Items,
-  States,
-  Ctx,
-  RootNode
->
+> = <Ctx>() => TaxonomyGroupPartComponents<Filter, Items, States, Ctx, RootNode>
 
 // ---- List item types (owned here so group-part does not import from space) --
 

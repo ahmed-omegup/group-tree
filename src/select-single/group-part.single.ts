@@ -1,29 +1,20 @@
-import {
-  TaxonomyGroupPartCtxDom,
-  TaxonomyItemsDomain,
-  TaxonomyNodeLayers,
-} from '../groups-tree/group-part'
-import { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
-import { expandGroupPart, findSelectedInGroupPart } from './single'
+import type { TaxonomyNodeLayers } from '../groups-tree/group-part'
+import type { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
 import type { SingleStates } from './single'
+import { expandGroupPart, findSelectedInGroupPart } from './single'
 
-export type SingleGroupPartExternal = ExternalBrand & {
-  subId: string | null
-}
+type External = ExternalBrand & { subId: string | null }
 
-export const externExpandGroupPartSingle = <
-  Items extends TaxonomyItemsDomain,
-  Ctx extends TaxonomyGroupPartCtxDom<SingleStates, Items, Ctx>,
->(): ExternExpand<
-  SingleStates,
-  SingleGroupPartExternal,
-  TaxonomyNodeLayers<SingleStates>['groupPart']
-> => ({
-  expand: (external, tree) => [expandGroupPart(external.subId, tree), { brand: 'EData' }],
+type GroupPartLayer = TaxonomyNodeLayers<SingleStates>['groupPart']
+
+type ThisExternExpand = ExternExpand<SingleStates, External, GroupPartLayer, never, {}>
+
+export const externExpandGroupPartSingle: ThisExternExpand = {
+  expand: (external, tree) => [expandGroupPart(external.subId, tree.state), { brand: 'EData' }],
   extern: computed => ({
     brand: 'external',
     subId: findSelectedInGroupPart('', computed),
   }),
-})
+}
 
-export type { SingleGroupPartExternal as GroupPartExternalSingle }
+export type { External as GroupPartExternalSingle }

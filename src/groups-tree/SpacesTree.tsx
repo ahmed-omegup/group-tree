@@ -1,13 +1,6 @@
 import { makeTaxonomyGroupPartComponents, TaxonomyGroupPartHooks } from './group-part'
-import { GroupsTreeHOC } from './GroupsTree'
-import type {
-  CtxDom,
-  SpaceItemKeys,
-  SpacesItemsDomain,
-  SpacesListItem,
-  SpacesNodes,
-  SpacesTreeLevel,
-} from './space'
+import type { ListStateDom, SpaceItemKeys, SpacesItemsDomain } from './space'
+import type { SpacesListItem, SpacesNodes, SpacesTreeLevel } from './space'
 import { makeSpaceComponents, makeSpaceComputeFns, makeSpaceTreeFns } from './space'
 import type { UseSpaceItemState } from './space/types'
 import type { InitialState, Reduce, SetItemData, StatesDomain } from './tree-common'
@@ -40,9 +33,10 @@ export const SpacesTreeHOC = <
   Items extends SpacesItemsDomain,
   States extends StatesDomain,
   External extends { brand: 'external' },
-  Ctx extends CtxDom<States, Items, Ctx>,
+  ListState extends ListStateDom,
+  Ctx,
 >(
-  { expand, extern }: ExternExpand<States, External, SpacesNodes<States>['root']>,
+  { expand, extern }: ExternExpand<States, External, SpacesNodes<States>['root'], never, {}>,
   args: SpacesDataHooks<Filter, Items, States>,
   storeArgs: {
     initialState: InitialState<States, SpacesTreeLevel, SpacesNodes<States>>
@@ -69,7 +63,7 @@ export const SpacesTreeHOC = <
     extern,
     initialData: { brand: 'IData' },
     initialLists: { space: {}, taxonomy: {}, groupPart: {} },
-    initialRootState: () => initialState['root'](''),
+    initialRootState: (_: null) => initialState['root'](''),
     listsToInternalState,
   })
 
@@ -83,7 +77,7 @@ export const SpacesTreeHOC = <
 
   const subTree = makeComponents<Ctx>()
 
-  const { Spaces } = makeSpaceComponents<Filter, Items, States, Ctx>(
+  const { Spaces } = makeSpaceComponents<Filter, Items, States, ListState, Ctx>(
     storeResult,
     {
       useItemState,

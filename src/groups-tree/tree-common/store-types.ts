@@ -50,7 +50,7 @@ export type TreeProviderArgs<External, Context> = {
   context: Context
 }
 
-type Action<
+export type Action<
   States extends StatesDomain,
   ItemKeys extends string,
   RootNode extends NodeLayerDomain<States>,

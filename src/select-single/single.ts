@@ -1,12 +1,9 @@
-import type { TaxonomyNodeLayers, TaxonomyShapes } from '../groups-tree/group-part'
+import { idToTaxonomyId, type TaxonomyNodeLayers, type TaxonomyShapes } from '../groups-tree/group-part'
 import type { TreeNode, TreeShape } from '../groups-tree/tree-common'
 import type { TaxonomyItemKeys, TaxonomyItemsDomain } from '../groups-tree/group-part'
 import type { TaxonomyListItem } from '../groups-tree/group-part'
-import type { SpacesListItem, SpacesNodes, SpacesTreeLevel } from '../groups-tree/space'
-import type { SpaceItemKeys, SpacesItemsDomain } from '../groups-tree/space'
 import type { EStateBrand, Reduce, StatesDomain } from '../groups-tree/tree-common'
 import { groupPartReduce, type InternalStates } from '../internal'
-import { spacesReduce } from '../internal.space'
 
 export type SingleSelection = { value: 'yes' | 'no' } | { value: 'child'; subId: string }
 
@@ -48,30 +45,15 @@ export const selectableGroupPartSingleReduce: Reduce<
   }),
 }
 
-export const selectableSpaceSingleReduce: Reduce<
-  States,
-  SpacesTreeLevel,
-  SpaceItemKeys,
-  SpacesListItem<SpacesItemsDomain>,
-  SpacesNodes<States>
-> = {
-  ...selectableGroupPartSingleReduce,
-  root: args => ({
-    ...spacesReduce.root(args),
-    ...singleSelected(args.eState),
-  }),
-  space: args => ({
-    ...spacesReduce.space(args),
-    ...singleSelected(args.eState),
-  }),
-}
 
 type IState = States['IState']
 
-export const toSelection = (selectedId: string | null, nodeId: string): SingleSelection => {
-  if (!selectedId?.startsWith(nodeId)) return { value: 'no' }
-  if (selectedId === nodeId) return { value: 'yes' }
-  return { value: 'child', subId: selectedId.slice(nodeId.length + 1).split('_')[0]! }
+/** Match a path remainder against this node's last id segment (same segment scheme as multi). */
+export const toSelection = (selectedId: string | null, segment: string): SingleSelection => {
+  const prefix = segment && `${segment}_`
+  if (!selectedId?.startsWith(segment)) return { value: 'no' }
+  if (selectedId === segment) return { value: 'yes' }
+  return { value: 'child', subId: selectedId.slice(prefix.length) }
 }
 
 type ExpandSingle<Shape extends TreeShape<Shape>> = (
@@ -104,9 +86,8 @@ export const makeSingleExpand =
   ): ExpandSingle<Shape> =>
   (selectedId, tree) => {
     const item = singleItem(level, selectedId, tree.item.id)
-    const subId =
-      selectedId && item.v.value === 'child' ? selectedId.split('_').slice(1).join('_') : null
-    return { item, child: processChildren(subId, tree.child) }
+    const childSelectedId = item.v.value === 'child' ? item.v.subId : null
+    return { item, child: processChildren(childSelectedId, tree.child) }
   }
 
 export const expandGroupPart: ExpandSingle<TaxonomyShapes['groupPart']> = makeSingleExpand(
@@ -135,10 +116,6 @@ export const findSelectedIn = <T>(
     return walkChild(node.child, [id, selected.subId].filter(Boolean).join('_'))
   }
   return null
-}
-const idToTaxonomyId = (id: string) => {
-  const parts = id.split('_').filter((_, i) => i & 1)
-  return parts.join('_')
 }
 
 export const findSelectedInGroupPart = (

@@ -15,11 +15,12 @@ type EState = EStateBrand & {
         selectedSubIds: string[]
       }
 }
-
-type CState = InternalStates['CState'] & {
+type LocalCState = {
   selected: 'yes' | 'no' | 'some'
   selectedSubIds?: string[]
 }
+
+type CState = InternalStates['CState'] & LocalCState
 
 type States = InternalStates & {
   CState: CState
@@ -30,13 +31,13 @@ export type { States as SelectableStates }
 
 const notYesEStateToCState = (
   eState: EState | undefined,
-): Pick<CState, 'selected' | 'selectedSubIds'> =>
+): LocalCState =>
   eState?.v.selected === 'some' ? eState.v : { selected: 'no' }
 
 export const allSelected = (
   children: Record<string, { item: States['CState'] }>,
   eState: EState | undefined,
-): Pick<CState, 'selected' | 'selectedSubIds'> =>
+): LocalCState =>
   Object.values(children).length !== 0
     ? {
         selected: Object.values(children).every(({ item: c }) => c.selected === 'yes')
@@ -52,7 +53,7 @@ export const allSelected = (
 export const someSelected = (
   children: Record<string, { item: States['CState'] }>,
   eState: EState | undefined,
-): Pick<CState, 'selected' | 'selectedSubIds'> =>
+): LocalCState =>
   eState?.v.selected === 'yes'
     ? { selected: 'yes' }
     : Object.values(children).length !== 0

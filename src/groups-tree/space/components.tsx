@@ -1,6 +1,6 @@
 import { concat, key, root, useHasBeenVisible } from '../tree-common'
-import type { Lens, StateKeys, StatesDomain, StoreCommonResult } from '../tree-common'
-import type { CtxDom, SpacesNodes, SpaceArgs, SpacesItemsDomain } from './types'
+import type { Lens, SetItemData, StateKeys, StatesDomain, StoreCommonResult } from '../tree-common'
+import type { CtxDom, SpacesNodes, SpaceArgs, SpacesItemsDomain, ListStateDom } from './types'
 import type { SpaceItemKeys, SpacesListItem, SpacesTreeLevel } from './types'
 import type { TaxonomyGroupPartComponents } from '../group-part/types'
 
@@ -8,7 +8,8 @@ export const makeSpaceComponents = <
   Filter,
   Items extends SpacesItemsDomain,
   States extends StatesDomain,
-  Ctx extends CtxDom<States, Items, Ctx>,
+  ListState extends ListStateDom,
+  Ctx,
 >(
   storeResult: StoreCommonResult<
     States,
@@ -17,7 +18,7 @@ export const makeSpaceComponents = <
     SpacesNodes<States>['root'],
     SpacesListItem<Items>
   >,
-  args: SpaceArgs<Filter, Items, States, Ctx>,
+  args: SpaceArgs<Filter, Items, States>,
   subTree: TaxonomyGroupPartComponents<Filter, Items, States, Ctx, SpacesNodes<States>['root']>,
 ) => {
   const { useSetItemState, useTreeSelector } = storeResult
@@ -28,16 +29,26 @@ export const makeSpaceComponents = <
 
   const SpaceContent = (props: {
     state: States['CState']
-    ctx: Ctx
+    ctx: CtxDom<States, Items, ListState, Ctx>
     filter: Filter
     item: Items['space']
     path: Lens<StateKeys, SpacesNodes<States>['root'], SpacesNodes<States>['space']>
   }) => {
     const { ctx, filter, item, state, path } = props
     const { updateWithList, update } = useSetItemState('space', path, item)
+    const ss: SetItemData<
+      States,
+      SpacesNodes<States>['space'],
+      SpacesListItem<Items>['taxonomy']
+    > = (updater, list) => {
+
+
+
+        updateWithList(updater, ['taxonomy', item._id, list])
+      }
     useTaxonomies(
       item,
-      (updater, list) => updateWithList(updater, ['taxonomy', item._id, list]),
+     ss ,
       filter,
     )
 
@@ -66,7 +77,11 @@ export const makeSpaceComponents = <
     })
   }
 
-  const Space = (props: { ctx: Ctx; filter: Filter; item: Items['space'] }) => {
+  const Space = (props: {
+    ctx: CtxDom<States, Items, ListState, Ctx>
+    filter: Filter
+    item: Items['space']
+  }) => {
     const { item, ctx, filter } = props
     const path: Lens<StateKeys, SpacesNodes<States>['root'], SpacesNodes<States>['space']> = concat(
       key('child'),
@@ -93,11 +108,17 @@ export const makeSpaceComponents = <
 
   // ---- Spaces (root entry point) ----------------------------------------
 
-  const Spaces = ({ ctx, filter }: { ctx: Ctx; filter: Filter }) => {
+  const Spaces = ({
+    ctx,
+    filter,
+  }: {
+    ctx: CtxDom<States, Items, ListState, Ctx>
+    filter: Filter
+  }) => {
     const { updateWithList } = useSetItemState('root', root(), undefined)
     useSpaces((updater, list) => updateWithList(updater, ['space', '', list]), filter)
 
-    const state = useTreeSelector(s => s.states.computed.item)
+    const state = useTreeSelector(s => ctx.getListState(s.states.computed.item))
     const spaces = useTreeSelector(s => s.lists.space[''] ?? [])
 
     return ctx.renderContainer({

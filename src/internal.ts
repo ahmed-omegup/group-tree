@@ -1,18 +1,8 @@
-import {
-  TaxonomyItemKeys,
-  TaxonomyItemsDomain,
-  TaxonomyListItem,
-  TaxonomyNodeLayers,
-} from './groups-tree/group-part'
+import type { TaxonomyItemKeys, TaxonomyItemsDomain } from './groups-tree/group-part'
+import type { TaxonomyListItem, TaxonomyNodeLayers } from './groups-tree/group-part'
 import { getTaxonomyChildren } from './groups-tree/group-part/components'
-import {
-  CStateBrand,
-  EStateBrand,
-  InitialState,
-  IStateBrand,
-  Reduce,
-  StatesDomain,
-} from './groups-tree/tree-common'
+import type { CStateBrand, InitialState } from './groups-tree/tree-common'
+import type { IStateBrand, Reduce, StatesDomain } from './groups-tree/tree-common'
 
 type IState = IStateBrand & {
   visible: boolean | null
@@ -21,9 +11,11 @@ type IState = IStateBrand & {
   id: string
 }
 
+export type ListState = 'loading' | 'none-matching' | 'populated' | 'is-leaf'
+
 type CState = CStateBrand & {
   visibility: 'visible' | 'hidden' | 'notReady'
-  list: 'loading' | 'none-matching' | 'populated' | 'childless'
+  list: ListState
 } & (
     | {
         isHeader: true
@@ -96,14 +88,14 @@ const reduce: Reduce<
   TaxonomyNodeLayers<States>
 > = {
   groupPart: ({ iState, child: { taxonomies: children } }) => {
-    const childless = iState.childrenReady && Object.values(children).length === 0
+    const isLeaf = iState.childrenReady && Object.values(children).length === 0
     const node: States['CState'] & { type: 'groupPart' } = {
       type: 'groupPart',
       brand: 'CState',
       visibility: visibility(iState),
       isHeader: true,
-      list: childless ? 'childless' : listState(iState, children),
-      collapsed: childless ? 'n.a' : iState.collapsed ? 'yes' : 'no',
+      list: isLeaf ? 'is-leaf' : listState(iState, children),
+      collapsed: isLeaf ? 'n.a' : iState.collapsed ? 'yes' : 'no',
     }
     return node
   },
@@ -116,12 +108,7 @@ const reduce: Reduce<
       type: 'taxonomy',
       visibility: visibility(iState),
       list: listState(iState, children),
-      ...(isHeader
-        ? {
-            isHeader,
-            collapsed: iState.collapsed ? 'yes' : 'no',
-          }
-        : { isHeader }),
+      ...(isHeader ? { isHeader, collapsed: iState.collapsed ? 'yes' : 'no' } : { isHeader }),
     }
   },
 }

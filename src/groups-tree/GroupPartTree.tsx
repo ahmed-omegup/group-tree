@@ -1,14 +1,6 @@
-import {
-  makeGroupPartComputeFns,
-  makeGroupPartTreeFns,
-  TaxonomyGroupPartCtxDom,
-  TaxonomyGroupPartHooks,
-  TaxonomyItemKeys,
-  TaxonomyItemsDomain,
-  TaxonomyNodeLayers,
-  UseGroupParts,
-  UseTaxonomyItemState,
-} from './group-part'
+import { makeGroupPartComputeFns, makeGroupPartTreeFns } from './group-part'
+import type { TaxonomyGroupPartCtxDom, TaxonomyItemsDomain, TaxonomyItemKeys } from './group-part'
+import type { TaxonomyGroupPartHooks, TaxonomyNodeLayers, UseTaxonomyItemState } from './group-part'
 import { TaxonomyListItem } from './group-part/types'
 import { GroupsTreeHOC } from './GroupsTree'
 import type { InitialState, Reduce, SetItemData, StatesDomain, StoreArgs } from './tree-common'
@@ -32,9 +24,8 @@ export const getStoreArgs = <
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
   External extends { brand: 'external' },
-  Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>,
 >(
-  { expand, extern }: ExternExpand<States, External, GPRoot<States>>,
+  { expand, extern }: ExternExpand<States, External, GPRoot<States>, never, {}>,
   storeArgs: {
     initialState: InitialState<States, TaxonomyItemKeys, TaxonomyNodeLayers<States>>
     reduce: Reduce<
@@ -57,7 +48,7 @@ export const getStoreArgs = <
     initialData: { brand: 'IData' },
     compute: computeGroupPartState,
     initialLists: { taxonomy: {}, groupPart: {} },
-    initialRootState: (ctx: Context) => initialState.groupPart(ctx.groupPart._id),
+    initialRootState: () => initialState.groupPart(''),
     listsToInternalState: (tree, old, lists, { groupPart }) =>
       listsToGroupPartNode(groupPart._id, lists.taxonomy[groupPart._id] ?? [], tree, old, lists),
   }
@@ -71,9 +62,9 @@ export const GroupPartTreeHOC = <
   Items extends TaxonomyItemsDomain,
   States extends StatesDomain,
   External extends { brand: 'external' },
-  Ctx extends TaxonomyGroupPartCtxDom<States, Items, Ctx>,
+  Ctx,
 >(
-  { expand, extern }: ExternExpand<States, External, GPRoot<States>>,
+  { expand, extern }: ExternExpand<States, External, GPRoot<States>, never, {}>,
   storeArgs: {
     initialState: InitialState<States, TaxonomyItemKeys, TaxonomyNodeLayers<States>>
     reduce: Reduce<
@@ -99,7 +90,10 @@ export const GroupPartTreeHOC = <
 
   const subTree = makeComponents<Ctx>()
 
-  const GroupPart = (props: { ctx: Ctx; filter: Filter }) => {
+  const GroupPart = (props: {
+    ctx: TaxonomyGroupPartCtxDom<States, Items, Ctx>
+    filter: Filter
+  }) => {
     const treeCtx = useTreeContext().context
     const { updateWithList } = useSetItemState('groupPart', root(), treeCtx.groupPart)
     args.useTaxonomies(

@@ -7,16 +7,12 @@ import type { GroupPartExternalMulti } from './group-part.multi'
 import { externExpandGroupPartMulti } from './group-part.multi'
 import { selectableGroupPartReduce, type SelectableStates } from './multi'
 
-export const SelectableGroupPartTreeHOC = <
-  Filter,
-  Items extends TaxonomyItemsDomain,
-  Ctx extends TaxonomyGroupPartCtxDom<SelectableStates, Items, Ctx>,
->(
+export const SelectableGroupPartTreeHOC = <Filter, Items extends TaxonomyItemsDomain, Ctx>(
   dataHooks: GroupPartDataHooks<Filter, Items, SelectableStates>,
   useItemState: UseTaxonomyItemState<Filter, Items, SelectableStates, GPRoot<SelectableStates>>,
 ) =>
   GroupPartTreeHOC<Filter, Items, SelectableStates, GroupPartExternalMulti, Ctx>(
-    externExpandGroupPartMulti(),
+    externExpandGroupPartMulti,
     {
       initialState: groupPartInitialState<SelectableStates>(),
       reduce: selectableGroupPartReduce,

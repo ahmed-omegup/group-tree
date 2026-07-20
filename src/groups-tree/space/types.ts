@@ -23,6 +23,7 @@ import type {
 // Re-export group-part types needed downstream
 export type {
   RenderHideContainer,
+  RenderItem,
   SomeItem,
   TaxonomyGroupPartComponents,
   TaxonomyGroupPartCtxDom,
@@ -33,6 +34,8 @@ export type {
   TaxonomyShape,
 } from '../group-part/types'
 
+export type ListStateDom = string
+
 // ---- Shapes --------------------------------------------------------------
 
 export type SpacesShape = {
@@ -40,10 +43,9 @@ export type SpacesShape = {
   child: { spaces: { type: 'space'; child: { taxonomies: TaxonomyShape } } }
 }
 export type SpaceShapes = TaxonomyShapes & {
-  root: SpacesShape,
-  space: SpacesShape['child']['spaces'],
+  root: SpacesShape
+  space: SpacesShape['child']['spaces']
 }
-
 
 // ---- Node-by-level (all four levels) -------------------------------------
 
@@ -102,21 +104,26 @@ export type RenderArgs<
   K extends keyof SpacesItemsDomain,
 > = Parameters<RenderItem<States, K, Items, Ctx, SpacesNodes<States>>>[0]
 
-export type CtxDom<
+export type SpacesCtxDom<
   States extends StatesDomain,
   Items extends SpacesItemsDomain,
+  ListState extends ListStateDom,
   Ctx,
 > = TaxonomyGroupPartCtxDom<States, Items, Ctx> & {
   renderItem: {
     [K in keyof SpacesItemsDomain]: RenderItem<States, K, Items, Ctx, SpacesNodes<States>>
   }
-  renderContainer: (args: {
-    ctx: Ctx
-    state: States['CState'] | undefined
-    children: ReactNode
-  }) => ReactNode
+  renderContainer: (args: { ctx: Ctx; state: ListState; children: ReactNode }) => ReactNode
 }
 
+export type CtxDom<
+  States extends StatesDomain,
+  Items extends SpacesItemsDomain,
+  ListState extends ListStateDom,
+  Ctx,
+> = SpacesCtxDom<States, Items, ListState, Ctx> & {
+  getListState: (state: States['CState']) => ListState
+}
 // ---- SpaceDeps (lives here so space/components.tsx stays thin) -----------
 
 import type { SetItemData, UseSetItemState, UseTreeSelector } from '../tree-common'
@@ -135,12 +142,7 @@ export type UseSpaceItemState<
   >
 }
 
-export type SpaceArgs<
-  Filter,
-  Items extends SpacesItemsDomain,
-  States extends StatesDomain,
-  Ctx extends CtxDom<States, Items, Ctx>,
-> = {
+export type SpaceArgs<Filter, Items extends SpacesItemsDomain, States extends StatesDomain> = {
   useItemState: UseSpaceItemState<Filter, Items, States>
   isVisible: (state: States['CState'] | undefined) => boolean
   useTaxonomies: (

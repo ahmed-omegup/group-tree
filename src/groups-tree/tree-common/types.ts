@@ -9,9 +9,9 @@ export type Tree<T, Brand> = { item: T; children: Tree<T, Brand>[] } & Brand
 // A TreeShape describes the recursive nesting structure (which node types nest
 // inside which).  It is only used as a constraint, never instantiated.
 
-export type TreeShape<F extends TreeShape<F>> = {
+export type TreeShape<Shape extends TreeShape<Shape>> = {
   type: string
-  child: { [K in keyof F['child']]: TreeShape<F['child'][K]> }
+  child: { [K in keyof Shape['child']]: TreeShape<Shape['child'][K]> }
 }
 
 export type TreeShapes<Levels extends string, Shapes extends TreeShapes<Levels, Shapes>> = {
@@ -148,10 +148,11 @@ export type Expand<
   States extends StatesDomain,
   External extends ExternalBrand,
   RootNode extends NodeLayerDomain<States>,
+  out ItemKeys extends string,
+  in ListItems extends ListItemDomain<ItemKeys>,
 > = (
   external: External,
-  tree: RootNode['IState'],
-  data: States['IData'],
+  data: InternalData<States, ItemKeys, RootNode, ListItems>,
 ) => [RootNode['EState'], States['EData']]
 
 export type Extern<
@@ -164,8 +165,10 @@ export type ExternExpand<
   States extends StatesDomain,
   External extends ExternalBrand,
   RootNode extends NodeLayerDomain<States>,
+  ItemKeys extends string,
+  ListItems extends ListItemDomain<ItemKeys>,
 > = {
-  expand: Expand<States, External, RootNode>
+  expand: Expand<States, External, RootNode, ItemKeys, ListItems>
   /**
    * extern is used to transform the computed state into the external state that will be returned in the onChange callback.
    * It should garantee this invariant:
@@ -207,7 +210,7 @@ export type StoreArgs<
   RootNode extends NodeLayerDomain<States>,
   ListItems extends ListItemDomain<ItemKeys>,
   Context extends null | { brand: 'context' },
-> = ExternExpand<States, External, RootNode> & {
+> = ExternExpand<States, External, RootNode, ItemKeys, ListItems> & {
   compute: (
     internal: InternalData<States, ItemKeys, RootNode, ListItems>,
     external: ExternalData<States, RootNode>,

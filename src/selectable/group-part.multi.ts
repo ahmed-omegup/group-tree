@@ -1,25 +1,18 @@
-import {
-  TaxonomyGroupPartCtxDom,
-  TaxonomyItemsDomain,
-  TaxonomyNodeLayers,
-} from '../groups-tree/group-part'
+import { TaxonomyNodeLayers } from '../groups-tree/group-part'
 import { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
-import { collectItemGroupPartIds, expandGroupPart } from './multi'
 import type { SelectableStates } from './multi'
+import { collectItemGroupPartIds, expandGroupPart } from './multi'
 
-type External = ExternalBrand & {
-  subIds: string[]
-}
+type External = ExternalBrand & { subIds: string[] }
 
-export const externExpandGroupPartMulti = <
-  Items extends TaxonomyItemsDomain,
-  Ctx extends TaxonomyGroupPartCtxDom<SelectableStates, Items, Ctx>,
->(): ExternExpand<
-  SelectableStates,
-  External,
-  TaxonomyNodeLayers<SelectableStates>['groupPart']
-> => ({
-  expand: (external, tree) => [expandGroupPart(external.subIds, tree, false), { brand: 'EData' }],
+type GroupPartLayer = TaxonomyNodeLayers<SelectableStates>['groupPart']
+type ThisExternExpand = ExternExpand<SelectableStates, External, GroupPartLayer, never, {}>
+
+export const externExpandGroupPartMulti: ThisExternExpand = {
+  expand: (external, tree) => [
+    expandGroupPart(external.subIds, tree.state, false),
+    { brand: 'EData' },
+  ],
   extern: computed => {
     const ids = collectItemGroupPartIds('', computed)
     return {
@@ -27,6 +20,6 @@ export const externExpandGroupPartMulti = <
       subIds: ids.some(c => c.indexOf('_') === -1) ? [''] : ids,
     }
   },
-})
+}
 
 export type { External as GroupPartExternalMulti }

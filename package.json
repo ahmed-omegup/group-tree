@@ -1,7 +1,9 @@
 {
     "name": "school-groups-tree",
     "version": "1.0.0",
-    "dependencies": {},
+    "dependencies": {
+        "school-utils": "workspace:*"
+    },
     "peerDependencies": {
         "react": "^18.2.0"
     },
