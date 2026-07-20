@@ -62,4 +62,4 @@ export const extern: Extern<States, External, SpacesNodes<States>['root']> = com
 type SingleExternExpand = ExternExpand<States, External, SpacesNodes<States>['root'], never, {}>
 export const externExpandSpacesSingle: SingleExternExpand = { expand, extern }
 
-export type { External as SingleSpaceExternal, External as SpacesExternalSingle }
+export type { External as SpacesExternalSingle }
