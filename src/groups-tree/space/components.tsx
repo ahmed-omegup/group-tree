@@ -36,19 +36,9 @@ export const makeSpaceComponents = <
   }) => {
     const { ctx, filter, item, state, path } = props
     const { updateWithList, update } = useSetItemState('space', path, item)
-    const ss: SetItemData<
-      States,
-      SpacesNodes<States>['space'],
-      SpacesListItem<Items>['taxonomy']
-    > = (updater, list) => {
-
-
-
-        updateWithList(updater, ['taxonomy', item._id, list])
-      }
     useTaxonomies(
       item,
-     ss ,
+      (updater, list) => updateWithList(updater, ['taxonomy', item._id, list]),
       filter,
     )
 
