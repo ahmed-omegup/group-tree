@@ -10,6 +10,8 @@ import { GroupsSingleContentProps, fromGroupPartId, toGroupsSingleRenderItem } f
 import type { SingleSelectStates } from './single'
 import { externExpandSpacesSingle, selectableSpaceSingleReduce } from './space.single'
 import type { SpacesExternalSingle } from './space.single'
+import type { SpacesCtxDom } from '../groups-tree/space'
+import type { ListState } from '../internal'
 
 /**
  * Single-select Spaces tree + flat groups list.
@@ -24,7 +26,7 @@ export const SingleSelectGroupsTreeHOC = <
   dataHooks: SpacesDataHooks<Filter, Items, SingleSelectStates>,
   useItemState: UseSpaceItemState<Filter, Items, SingleSelectStates>,
   useGroups: UseGroupsList<Filter, Item>,
-  renderList: RenderGroupsList<Item>,
+  renderList: RenderGroupsList<Item, SpacesCtxDom<SingleSelectStates, Items, ListState, Ctx>>,
 ) => {
   const {
     Groups: GroupsBody,

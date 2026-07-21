@@ -11,6 +11,8 @@ import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
 import type { MultiSelectStates } from './multi'
 import { externExpandSpacesMulti, type SpacesExternalMulti } from './space.multi'
 import { selectableSpaceReduce } from './space.reduce'
+import type { SpacesCtxDom } from '../groups-tree/space'
+import type { ListState } from '../internal'
 
 export type MultiSelectGroupsContentProps<
   Filter,
@@ -32,7 +34,7 @@ export const MultiSelectGroupsTreeHOC = <
   dataHooks: SpacesDataHooks<Filter, Items, MultiSelectStates>,
   useItemState: UseSpaceItemState<Filter, Items, MultiSelectStates>,
   useGroups: UseGroupsList<Filter, Item>,
-  renderList: RenderGroupsList<Item>,
+  renderList: RenderGroupsList<Item, SpacesCtxDom<MultiSelectStates, Items, ListState, Ctx>>,
 ) => {
   const {
     Groups: GroupsBody,

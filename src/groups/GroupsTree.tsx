@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { useDefaultState } from 'school-utils'
 import { SpacesTreeHOC, type SpacesDataHooks } from '../groups-tree/SpacesTree'
-import type { SpacesNodes, CtxDom, SpaceItemKeys, SpacesItemsDomain } from '../groups-tree/space'
+import type { SpacesNodes, CtxDom, SpaceItemKeys, SpacesItemsDomain, SpacesCtxDom } from '../groups-tree/space'
 import type { SpacesListItem, SpacesTreeLevel, UseSpaceItemState } from '../groups-tree/space'
 import type { ExternExpand, InitialState, Reduce } from '../groups-tree/tree-common'
 import type { ListState } from '../internal'
@@ -41,7 +41,7 @@ export const GroupsTreeHOC = <
   },
   useItemState: UseSpaceItemState<Filter, Items, States>,
   useGroups: UseGroupsList<Filter, Item>,
-  renderList: RenderGroupsList<Item>,
+  renderList: RenderGroupsList<Item, SpacesCtxDom<States, Items, ListState, Ctx>>,
 ) => {
   const { Spaces, TreeProvider, useTreeSelector } = SpacesTreeHOC<
     Filter,
@@ -79,7 +79,7 @@ export const GroupsTreeHOC = <
       children: (
         <>
           <Spaces ctx={spaceCtx} filter={filter} />
-          {renderList(data, limit, renderItem, setLimit)}
+          {renderList(data, limit, renderItem, setLimit, ctx)}
         </>
       ),
     })

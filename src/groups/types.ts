@@ -19,11 +19,12 @@ export type UseGroupsList<Filter, Item extends GroupsListItem> = (
   limit: number,
 ) => GroupsListData<Item>
 
-export type RenderGroupsList<Item extends GroupsListItem> = (
+export type RenderGroupsList<Item extends GroupsListItem, Ctx = unknown> = (
   data: GroupsListData<Item>,
   limit: number,
   renderItem: (item: Item) => ReactNode,
   setLimit: Dispatch<SetStateAction<number>>,
+  ctx: Ctx,
 ) => ReactNode
 
 export type RenderGroupItem<Item extends GroupsListItem> = (args: {
