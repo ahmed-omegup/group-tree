@@ -5,7 +5,7 @@ import { Expand, Extern, ExternalBrand, ExternExpand, Reduce } from '../groups-t
 import { spacesReduce } from '../internal.space'
 import { selectableGroupPartSingleReduce, findSelectedInTaxonomy, makeSingleExpand } from './single'
 import { expandTaxonomy, findSelectedIn, mapChildren, singleSelected } from './single'
-import type { SingleStates as States } from './single'
+import type { SingleSelectStates as States } from './single'
 type External = ExternalBrand & { selectedId: string | null }
 
 export const selectableSpaceSingleReduce: Reduce<

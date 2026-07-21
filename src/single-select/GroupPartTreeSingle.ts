@@ -3,16 +3,16 @@ import { TaxonomyItemsDomain } from '../groups-tree/group-part'
 import { GPRoot, GroupPartDataHooks, GroupPartTreeHOC } from '../groups-tree/GroupPartTree'
 import { groupPartInitialState, isVisible } from '../internal'
 import { externExpandGroupPartSingle, type GroupPartExternalSingle } from './group-part.single'
-import { selectableGroupPartSingleReduce, type SingleStates } from './single'
+import { selectableGroupPartSingleReduce, type SingleSelectStates } from './single'
 
-export const SelectableGroupPartTreeSingleHOC = <Filter, Items extends TaxonomyItemsDomain, Ctx>(
-  dataHooks: GroupPartDataHooks<Filter, Items, SingleStates>,
-  useItemState: UseTaxonomyItemState<Filter, Items, SingleStates, GPRoot<SingleStates>>,
+export const SingleSelectGroupPartTreeHOC = <Filter, Items extends TaxonomyItemsDomain, Ctx>(
+  dataHooks: GroupPartDataHooks<Filter, Items, SingleSelectStates>,
+  useItemState: UseTaxonomyItemState<Filter, Items, SingleSelectStates, GPRoot<SingleSelectStates>>,
 ) =>
-  GroupPartTreeHOC<Filter, Items, SingleStates, GroupPartExternalSingle, Ctx>(
+  GroupPartTreeHOC<Filter, Items, SingleSelectStates, GroupPartExternalSingle, Ctx>(
     externExpandGroupPartSingle,
     {
-      initialState: groupPartInitialState<SingleStates>(),
+      initialState: groupPartInitialState<SingleSelectStates>(),
       reduce: selectableGroupPartSingleReduce,
     },
     dataHooks,

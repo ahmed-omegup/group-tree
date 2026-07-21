@@ -15,7 +15,7 @@ const DEFAULT_LIMIT = 20
  * Spaces tree + paginated flat groups list.
  * Creates {@link SpacesTreeHOC} internally (same pattern as SpacesTree → GroupPartTree).
  *
- * Selection stays in selectable / select-single — this HOC only composes tree + list.
+ * Selection stays in selectable / single-select — this HOC only composes tree + list.
  * Empty only when both subsets are empty. `Groups` must sit inside `TreeProvider`.
  */
 export const GroupsTreeHOC = <

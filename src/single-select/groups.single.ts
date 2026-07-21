@@ -3,7 +3,7 @@ import type { GroupsListItem, RenderGroupItem } from '../groups'
 import { SpacesCtxDom, SpacesItemsDomain } from '../groups-tree/space'
 import type { ExternalBrand } from '../groups-tree/tree-common'
 import { ListState } from '../internal'
-import { SingleStates } from './single'
+import { SingleSelectStates } from './single'
 
 /** One tree part id and/or one unclassified group id. */
 export type SelectedGroup =
@@ -34,7 +34,7 @@ export const fromGroupId = (groupId: string | null): SelectedGroup =>
   groupId === null ? emptySelectedGroup() : { type: 'group', groupId }
 
 export type GroupsSingleContentProps<Filter, Ctx, Item extends GroupsListItem> = {
-  ctx: SpacesCtxDom<SingleStates, SpacesItemsDomain, ListState, Ctx>
+  ctx: SpacesCtxDom<SingleSelectStates, SpacesItemsDomain, ListState, Ctx>
   filter: Filter
   value: SelectedGroup
   onChange: (value: SelectedGroup) => void

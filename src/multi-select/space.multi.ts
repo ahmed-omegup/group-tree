@@ -3,7 +3,7 @@ import type { CtxDom } from '../groups-tree/space'
 import type { Expand, Extern, ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
 import { collectItemIds, collectItems, expandTaxonomy, makeExpand } from './multi'
 import { collectTaxonomyIds, makeSpitter, taxonomiesEmpty, handleChildren } from './multi'
-import type { SelectableStates as States } from './multi'
+import type { MultiSelectStates as States } from './multi'
 
 type External = ExternalBrand & {
   selectedIds: string[]

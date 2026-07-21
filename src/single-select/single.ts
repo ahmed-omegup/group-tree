@@ -22,7 +22,7 @@ type TreeStates = InternalStates & {
 
 type States = TreeStates & StatesDomain
 
-export type { States as SingleStates }
+export type { States as SingleSelectStates }
 
 export const singleSelected = (eState: EState | undefined): Pick<CState, 'selected'> => ({
   selected: eState?.v ?? { value: 'no' },

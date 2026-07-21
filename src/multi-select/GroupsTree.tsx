@@ -7,30 +7,30 @@ import { isVisible } from '../internal'
 import { spacesInitialState } from '../internal.space'
 import { setGroupPartIds, toGroupsMultiRenderItem } from './groups.multi'
 import type { GroupsMultiContentProps } from './groups.multi'
-import type { SelectableSpacesDataHooks } from './SelectableSpacesTree'
-import type { SelectableStates } from './multi'
+import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
+import type { MultiSelectStates } from './multi'
 import { externExpandSpacesMulti, type SpacesExternalMulti } from './space.multi'
 import { selectableSpaceReduce } from './space.reduce'
 
-export type SelectableGroupsContentProps<
+export type MultiSelectGroupsContentProps<
   Filter,
   Ctx,
   Items extends SpacesItemsDomain,
   Item extends GroupsListItem,
-> = GroupsMultiContentProps<SelectableStates, Filter, Ctx, Items, Item>
+> = GroupsMultiContentProps<MultiSelectStates, Filter, Ctx, Items, Item>
 
 /**
- * Selectable Spaces tree + flat groups list.
+ * Multi Select Spaces tree + flat groups list.
  * Builds Spaces via {@link GroupsTreeHOC}; owns SelectedGroups ↔ tree selectedIds.
  */
-export const SelectableGroupsTreeHOC = <
+export const MultiSelectGroupsTreeHOC = <
   Filter,
   Items extends SpacesItemsDomain,
   Ctx,
   Item extends GroupsListItem,
 >(
-  dataHooks: SelectableSpacesDataHooks<Filter, Items, SelectableStates>,
-  useItemState: UseSpaceItemState<Filter, Items, SelectableStates>,
+  dataHooks: SpacesDataHooks<Filter, Items, MultiSelectStates>,
+  useItemState: UseSpaceItemState<Filter, Items, MultiSelectStates>,
   useGroups: UseGroupsList<Filter, Item>,
   renderList: RenderGroupsList<Item>,
 ) => {
@@ -39,11 +39,11 @@ export const SelectableGroupsTreeHOC = <
     Spaces,
     TreeProvider,
     useTreeSelector,
-  } = GroupsTreeHOC<Filter, Items, SelectableStates, SpacesExternalMulti, Ctx, Item>(
+  } = GroupsTreeHOC<Filter, Items, MultiSelectStates, SpacesExternalMulti, Ctx, Item>(
     externExpandSpacesMulti,
     dataHooks,
     {
-      initialState: spacesInitialState<SelectableStates>(),
+      initialState: spacesInitialState<MultiSelectStates>(),
       reduce: selectableSpaceReduce,
       isVisible,
     },
@@ -58,7 +58,7 @@ export const SelectableGroupsTreeHOC = <
     renderGroupItem,
     ctx,
     filter,
-  }: GroupsMultiContentProps<SelectableStates, Filter, Ctx, Items, Item>) => {
+  }: GroupsMultiContentProps<MultiSelectStates, Filter, Ctx, Items, Item>) => {
     const treeValue = useMemo(
       (): SpacesExternalMulti => ({ brand: 'external', selectedIds: value.groupPartIds }),
       [value.groupPartIds],

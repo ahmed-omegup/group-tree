@@ -8,7 +8,7 @@ export type GroupsListItem = {
   id: string
 }
 
-export type GroupsListData<Item extends GroupsListItem = GroupsListItem> = {
+export type GroupsListData<Item extends GroupsListItem> = {
   items: Item[]
   ready: boolean
 }

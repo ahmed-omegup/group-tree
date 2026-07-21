@@ -27,7 +27,7 @@ type States = InternalStates & {
   EState: EState
 }
 
-export type { States as SelectableStates }
+export type { States as MultiSelectStates }
 
 const notYesEStateToCState = (
   eState: EState | undefined,

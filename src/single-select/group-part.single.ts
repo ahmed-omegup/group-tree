@@ -1,13 +1,13 @@
 import type { TaxonomyNodeLayers } from '../groups-tree/group-part'
 import type { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
-import type { SingleStates } from './single'
+import type { SingleSelectStates } from './single'
 import { expandGroupPart, findSelectedInGroupPart } from './single'
 
 type External = ExternalBrand & { subId: string | null }
 
-type GroupPartLayer = TaxonomyNodeLayers<SingleStates>['groupPart']
+type GroupPartLayer = TaxonomyNodeLayers<SingleSelectStates>['groupPart']
 
-type ThisExternExpand = ExternExpand<SingleStates, External, GroupPartLayer, never, {}>
+type ThisExternExpand = ExternExpand<SingleSelectStates, External, GroupPartLayer, never, {}>
 
 export const externExpandGroupPartSingle: ThisExternExpand = {
   expand: (external, tree) => [expandGroupPart(external.subId, tree.state), { brand: 'EData' }],

@@ -5,9 +5,9 @@ import type { SpacesItemsDomain } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import { isVisible } from '../internal'
 import { spacesInitialState } from '../internal.space'
-import type { SelectableSpacesDataHooks } from '../selectable/SelectableSpacesTree'
+import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
 import { GroupsSingleContentProps, fromGroupPartId, toGroupsSingleRenderItem } from './groups.single'
-import type { SingleStates } from './single'
+import type { SingleSelectStates } from './single'
 import { externExpandSpacesSingle, selectableSpaceSingleReduce } from './space.single'
 import type { SpacesExternalSingle } from './space.single'
 
@@ -15,14 +15,14 @@ import type { SpacesExternalSingle } from './space.single'
  * Single-select Spaces tree + flat groups list.
  * Builds Spaces via {@link GroupsTreeHOC}; owns SelectedGroup ↔ tree selectedId.
  */
-export const SelectableGroupsTreeSingleHOC = <
+export const SingleSelectGroupsTreeHOC = <
   Filter,
   Items extends SpacesItemsDomain,
   Ctx,
   Item extends GroupsListItem,
 >(
-  dataHooks: SelectableSpacesDataHooks<Filter, Items, SingleStates>,
-  useItemState: UseSpaceItemState<Filter, Items, SingleStates>,
+  dataHooks: SpacesDataHooks<Filter, Items, SingleSelectStates>,
+  useItemState: UseSpaceItemState<Filter, Items, SingleSelectStates>,
   useGroups: UseGroupsList<Filter, Item>,
   renderList: RenderGroupsList<Item>,
 ) => {
@@ -31,11 +31,11 @@ export const SelectableGroupsTreeSingleHOC = <
     Spaces,
     TreeProvider,
     useTreeSelector,
-  } = GroupsTreeHOC<Filter, Items, SingleStates, SpacesExternalSingle, Ctx, Item>(
+  } = GroupsTreeHOC<Filter, Items, SingleSelectStates, SpacesExternalSingle, Ctx, Item>(
     externExpandSpacesSingle,
     dataHooks,
     {
-      initialState: spacesInitialState<SingleStates>(),
+      initialState: spacesInitialState<SingleSelectStates>(),
       reduce: selectableSpaceSingleReduce,
       isVisible,
     },

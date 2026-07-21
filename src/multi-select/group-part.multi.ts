@@ -1,12 +1,12 @@
 import { TaxonomyNodeLayers } from '../groups-tree/group-part'
 import { ExternalBrand, ExternExpand } from '../groups-tree/tree-common'
-import type { SelectableStates } from './multi'
+import type { MultiSelectStates } from './multi'
 import { collectItemGroupPartIds, expandGroupPart } from './multi'
 
 type External = ExternalBrand & { subIds: string[] }
 
-type GroupPartLayer = TaxonomyNodeLayers<SelectableStates>['groupPart']
-type ThisExternExpand = ExternExpand<SelectableStates, External, GroupPartLayer, never, {}>
+type GroupPartLayer = TaxonomyNodeLayers<MultiSelectStates>['groupPart']
+type ThisExternExpand = ExternExpand<MultiSelectStates, External, GroupPartLayer, never, {}>
 
 export const externExpandGroupPartMulti: ThisExternExpand = {
   expand: (external, tree) => [
