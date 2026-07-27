@@ -18,11 +18,28 @@ export type { GroupsSingleContentProps } from './single-select/groups.single'
 export { GroupsTreeHOC } from './groups'
 export type { GroupsTreeProps, GroupsListItem, GroupsListData } from './groups'
 export type { UseGroupsList, RenderGroupsList, RenderGroupItem } from './groups'
-export type { CtxDom, ExternalUpdater, InternalUpdater, NodeLayerDomain } from './groups-tree'
+export type {
+  CtxDom,
+  ExternalUpdater,
+  InternalUpdater,
+  NodeLayerDomain,
+} from './groups-tree'
+export type { SetItemData, Update, ListItemBrand } from './groups-tree/tree-common/types'
 export type { GroupPartDataHooks, GPRoot } from './groups-tree/GroupPartTree'
-export type { RenderArgs, RenderItem, SpacesItemsDomain, SpacesNodes } from './groups-tree/space'
+export type {
+  RenderArgs,
+  RenderItem,
+  SpacesItemsDomain,
+  SpacesListItem,
+  SpacesNodes,
+} from './groups-tree/space'
 export type { UseSpaceItemState } from './groups-tree/space/types'
-export type { UseTaxonomyItemState } from './groups-tree/group-part/types'
+export type {
+  TaxonomyItemsDomain,
+  TaxonomyListItem,
+  TaxonomyNodeLayers,
+  UseTaxonomyItemState,
+} from './groups-tree/group-part/types'
 export type { MultiSelectStates } from './multi-select/multi'
 export type { SingleSelectStates, SingleSelection } from './single-select/single'
 export type { InternalStates, ListState } from './internal'
