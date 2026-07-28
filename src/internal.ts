@@ -70,7 +70,9 @@ export const listState = (
 ) =>
   !iState.childrenReady ||
   Object.values(children).some(
-    ({ item: c }) => c.visibility === 'notReady' || (!c.isHeader && c.list === 'loading'),
+    ({ item: c }) =>
+      c.visibility === 'notReady' ||
+      (c.visibility === 'visible' && !c.isHeader && c.list === 'loading'),
   )
     ? 'loading'
     : Object.values(children).some(({ item: c }) => c.visibility === 'visible')
