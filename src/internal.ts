@@ -67,7 +67,7 @@ const initialState = <States extends StatesDomain>(): InitialState<
 export const listState = (
   iState: States['IState'],
   children: Record<string, { item: States['CState'] }>,
-) =>
+): ListState =>
   !iState.childrenReady ||
   Object.values(children).some(
     ({ item: c }) =>
@@ -75,9 +75,10 @@ export const listState = (
       (c.visibility === 'visible' && !c.isHeader && c.list === 'loading'),
   )
     ? 'loading'
-    : Object.values(children).some(({ item: c }) => c.visibility === 'visible')
-      ? 'populated'
-      : 'none-matching'
+    : !Object.values(children).some(({ item: c }) => (c.isHeader || c.list ==='populated'))
+      ? 'is-leaf': Object.values(children).some(({ item: c }) => c.visibility === 'visible' && (c.isHeader || c.list ==='populated'))
+        ? ( iState.id === 'education_grade_3' && console.log('populated', children), 'populated')
+        : 'none-matching'
 
 export const visibility = (iState: IState) =>
   iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady'
@@ -90,14 +91,14 @@ const reduce: Reduce<
   TaxonomyNodeLayers<States>
 > = {
   groupPart: ({ iState, child: { taxonomies: children } }) => {
-    const isLeaf = iState.childrenReady && Object.values(children).length === 0
+    const list = listState(iState, children)
     const node: States['CState'] & { type: 'groupPart' } = {
       type: 'groupPart',
       brand: 'CState',
       visibility: visibility(iState),
       isHeader: true,
-      list: isLeaf ? 'is-leaf' : listState(iState, children),
-      collapsed: isLeaf ? 'n.a' : iState.collapsed ? 'yes' : 'no',
+      list,
+      collapsed: list === 'is-leaf' ? 'n.a' : iState.collapsed ? 'yes' : 'no',
     }
     return node
   },
