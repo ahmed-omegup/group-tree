@@ -67,18 +67,27 @@ const initialState = <States extends StatesDomain>(): InitialState<
 export const listState = (
   iState: States['IState'],
   children: Record<string, { item: States['CState'] }>,
-): ListState =>
-  !iState.childrenReady ||
-  Object.values(children).some(
-    ({ item: c }) =>
-      c.visibility === 'notReady' ||
-      (c.visibility === 'visible' && !c.isHeader && c.list === 'loading'),
+): ListState => {
+  const items = Object.values(children).map(({ item }) => item)
+  /** A child only contributes a row when it renders its own header or has a populated list. */
+  const contributes = (c: States['CState']) => c.isHeader || c.list === 'populated'
+
+  if (
+    !iState.childrenReady ||
+    items.some(
+      c =>
+        c.visibility === 'notReady' ||
+        (c.visibility === 'visible' && !c.isHeader && c.list === 'loading'),
+    )
   )
-    ? 'loading'
-    : !Object.values(children).some(({ item: c }) => (c.isHeader || c.list ==='populated'))
-      ? 'is-leaf': Object.values(children).some(({ item: c }) => c.visibility === 'visible' && (c.isHeader || c.list ==='populated'))
-        ? ( iState.id === 'education_grade_3' && console.log('populated', children), 'populated')
-        : 'none-matching'
+    return 'loading'
+
+  if (!items.some(contributes)) return 'is-leaf'
+
+  return items.some(c => c.visibility === 'visible' && contributes(c))
+    ? 'populated'
+    : 'none-matching'
+}
 
 export const visibility = (iState: IState) =>
   iState.visible === false ? 'hidden' : iState.visible === true ? 'visible' : 'notReady'
