@@ -47,7 +47,10 @@ const collectSpaceIds = collectItems(collectItemSpaceIds)
 
 export const extern: Extern<States, External, SpacesNodes<States>['root']> = computed => ({
   brand: 'external',
-  selectedIds: collectSpaceIds('', computed.child.spaces),
+  selectedIds: collectSpaceIds(
+    { id: '', hasUnselected: computed.item.hasUnselected },
+    computed.child.spaces,
+  ),
 })
 
 type ThisExternExpand = ExternExpand<States, External, SpaceNode, never, {}>

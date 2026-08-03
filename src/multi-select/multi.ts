@@ -17,6 +17,7 @@ type EState = EStateBrand & {
 }
 type LocalCState = {
   selected: 'yes' | 'no' | 'some'
+  hasUnselected: boolean
   selectedSubIds?: string[]
 }
 
@@ -29,10 +30,10 @@ type States = InternalStates & {
 
 export type { States as MultiSelectStates }
 
-const notYesEStateToCState = (
-  eState: EState | undefined,
-): LocalCState =>
-  eState?.v.selected === 'some' ? eState.v : { selected: 'no' }
+const notYesEStateToCState = (eState: EState | undefined): LocalCState =>
+  eState?.v.selected === 'some'
+    ? { ...eState.v, hasUnselected: false }
+    : { selected: 'no', hasUnselected: eState?.v.selected === 'unselected' }
 
 export const allSelected = (
   children: Record<string, { item: States['CState'] }>,
@@ -47,25 +48,27 @@ export const allSelected = (
               )
             ? 'some'
             : 'no',
+        hasUnselected: Object.values(children).some(({ item: c }) => c.hasUnselected),
       }
     : notYesEStateToCState(eState)
 
 export const someSelected = (
   children: Record<string, { item: States['CState'] }>,
   eState: EState | undefined,
-): LocalCState =>
-  eState?.v.selected === 'yes'
-    ? { selected: 'yes' }
-    : Object.values(children).length !== 0
-      ? {
-          selected: Object.values(children).some(({ item: c }) => c.selected === 'yes')
-            ? 'yes'
-            : Object.values(children).some(({ item: c }) => c.selected === 'some')
-              ? 'some'
-              : 'no',
-        }
-      : notYesEStateToCState(eState)
-
+): LocalCState => {
+  if (eState?.v.selected === 'yes') return { selected: 'yes', hasUnselected: false }
+  if (!Object.values(children).length) return notYesEStateToCState(eState)
+  const hasUnselected = Object.values(children).some(({ item: c }) => c.hasUnselected)
+  return {
+    selected:
+      !hasUnselected && Object.values(children).some(({ item: c }) => c.selected === 'yes')
+        ? 'yes'
+        : Object.values(children).some(({ item: c }) => c.selected === 'some')
+          ? 'some'
+          : 'no',
+    hasUnselected,
+  }
+}
 export const selectableGroupPartReduce: Reduce<
   States,
   TaxonomyItemKeys,
@@ -202,18 +205,25 @@ type CollectItems<T> = Record<string, { item: CState; child: T }>
 type Collector<T> = (id: string, arg: { item: CState; child: T }) => string[]
 
 export const collectItemIds =
-  <T>(handleChildren: (prefix: string, child: T) => string[]): Collector<T> =>
+  <T>(
+    handleChildren: (opts: { id: string; hasUnselected: boolean }, child: T) => string[],
+  ): Collector<T> =>
   (id, { item, child }) => {
-    const { selected, selectedSubIds = [] } = item
+    const { selected, selectedSubIds = [], hasUnselected } = item
     if (selected === 'no') return []
     if (selected === 'yes') return [id]
-    return [...selectedSubIds.map(subId => `${id}_${subId}`), ...handleChildren(id, child)]
+    return [
+      ...selectedSubIds.map(subId => `${id}_${subId}`),
+      ...handleChildren({ id, hasUnselected }, child),
+    ]
   }
 
 export const collectItems =
-  <T>(collector: Collector<T>) =>
-  (prefix: string, items: CollectItems<T>): string[] => {
+  <T>(collector: Collector<T>, useHasUnselect?: boolean) =>
+  (opts: { id: string; hasUnselected: boolean }, items: CollectItems<T>): string[] => {
+    const { id: prefix, hasUnselected } = opts
     return Object.entries(items).flatMap(([k, item]) => {
+      if (useHasUnselect && hasUnselected && item.item.selected === 'yes') return []
       const key = k.split('_').slice(-1)[0]!
       const id = prefix ? `${prefix}_${key}` : key
       return collector(id, item)
@@ -222,11 +232,11 @@ export const collectItems =
 
 export const collectItemGroupPartIds = collectItemIds<
   TaxonomyNodeLayers<States>['groupPart']['CState']['child']
->((prefix, { taxonomies }): string[] => collectTaxonomyIds(prefix, taxonomies))
+>((opts, { taxonomies }): string[] => collectTaxonomyIds(opts, taxonomies))
 
 export const collectGroupPartIds = collectItems(collectItemGroupPartIds)
 
 export const collectItemTaxonomyIds = collectItemIds<
   TaxonomyNodeLayers<States>['taxonomy']['CState']['child']
->((prefix, { groupParts }): string[] => collectGroupPartIds(prefix, groupParts))
-export const collectTaxonomyIds = collectItems(collectItemTaxonomyIds)
+>((opts, { groupParts }): string[] => collectGroupPartIds(opts, groupParts))
+export const collectTaxonomyIds = collectItems(collectItemTaxonomyIds, true)
