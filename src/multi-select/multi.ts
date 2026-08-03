@@ -8,7 +8,7 @@ import { groupPartReduce, type InternalStates } from '../internal'
 type EState = EStateBrand & {
   v:
     | {
-        selected: 'yes' | 'no'
+        selected: 'yes' | 'no' | 'unselected'
       }
     | {
         selected: 'some'
