@@ -1,5 +1,5 @@
 import { SpacesTreeHOC } from '../groups-tree'
-import type { SpacesItemsDomain } from '../groups-tree/space'
+import type { SpacesItemsDomain, SpacesListItem } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import type { SpacesDataHooks } from '../groups-tree/SpacesTree'
 import { isVisible, ListState } from '../internal'
@@ -16,7 +16,7 @@ export const MultiSelectSpacesTreeHOC = <Filter, Items extends SpacesItemsDomain
     externExpandSpacesMulti,
     dataHooks,
     {
-      initialState: spacesInitialState<MultiSelectStates>(),
+      initialState: spacesInitialState<SpacesListItem<Items>, MultiSelectStates>(),
       reduce: selectableSpaceReduce,
       isVisible,
     },

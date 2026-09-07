@@ -39,7 +39,7 @@ export const SpacesTreeHOC = <
   { expand, extern }: ExternExpand<States, External, SpacesNodes<States>['root'], never, {}>,
   args: SpacesDataHooks<Filter, Items, States>,
   storeArgs: {
-    initialState: InitialState<States, SpacesTreeLevel, SpacesNodes<States>>
+    initialState: InitialState<States, SpacesTreeLevel, SpacesListItem<Items>, SpacesNodes<States>>
     reduce: Reduce<
       States,
       SpacesTreeLevel,

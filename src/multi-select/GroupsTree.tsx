@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import type { SpacesItemsDomain } from '../groups-tree/space'
+import type { SpacesItemsDomain, SpacesListItem } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import { GroupsTreeHOC } from '../groups'
 import type { GroupsListItem, RenderGroupsList, UseGroupsList } from '../groups'
@@ -45,7 +45,7 @@ export const MultiSelectGroupsTreeHOC = <
     externExpandSpacesMulti,
     dataHooks,
     {
-      initialState: spacesInitialState<MultiSelectStates>(),
+      initialState: spacesInitialState<SpacesListItem<Items>, MultiSelectStates>(),
       reduce: selectableSpaceReduce,
       isVisible,
     },

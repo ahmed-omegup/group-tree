@@ -228,11 +228,13 @@ export type StoreArgs<
 
 export type InitialState<
   in States extends TreeStatesDomain,
-  in Levels extends string,
+  Levels extends string,
+  in Items extends ListItemDomain<Levels>,
   out Nodes extends NodesDomain<States, Levels>,
 > = {
   [L in Levels]: (
     id: string,
+    item?: Items[L],
     newParent?: States['IState'],
     oldParent?: States['CState'],
   ) => Nodes[L]['IState']

@@ -9,10 +9,10 @@ import type {
 } from './types'
 
 export const makeSpaceTreeFns = <States extends StatesDomain, Items extends SpacesItemsDomain>(
-  initialState: InitialState<States, SpacesTreeLevel, SpacesNodes<States>>,
+  initialState: InitialState<States, SpacesTreeLevel, SpacesListItem<Items>, SpacesNodes<States>>,
 ) => {
   const { listsToTaxonomyNode } = makeGroupPartTreeFns<States, Items>(initialState)
-  const fitToChildren = makeFitToChildren(initialState)<SpacesListItem<Items>>()
+  const fitToChildren = makeFitToChildren<SpacesListItem<Items>>()(initialState)
 
   const listsToSpaceNode = (
     space: Items['space'],

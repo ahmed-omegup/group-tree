@@ -1,5 +1,5 @@
 import { SpacesTreeHOC } from '../groups-tree'
-import type { SpacesItemsDomain } from '../groups-tree/space'
+import type { SpacesItemsDomain, SpacesListItem } from '../groups-tree/space'
 import type { UseSpaceItemState } from '../groups-tree/space/types'
 import { isVisible, ListState } from '../internal'
 import { spacesInitialState } from '../internal.space'
@@ -16,7 +16,7 @@ export const SingleSelectSpacesTreeHOC = <Filter, Items extends SpacesItemsDomai
     externExpandSpacesSingle,
     dataHooks,
     {
-      initialState: spacesInitialState<SingleSelectStates>(),
+      initialState: spacesInitialState<SpacesListItem<Items>, SingleSelectStates>(),
       reduce: selectableSpaceSingleReduce,
       isVisible,
     },

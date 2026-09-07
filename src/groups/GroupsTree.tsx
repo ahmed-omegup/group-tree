@@ -2,7 +2,13 @@ import { useMemo } from 'react'
 
 import { useDefaultState } from 'school-utils'
 import { SpacesTreeHOC, type SpacesDataHooks } from '../groups-tree/SpacesTree'
-import type { SpacesNodes, CtxDom, SpaceItemKeys, SpacesItemsDomain, SpacesCtxDom } from '../groups-tree/space'
+import type {
+  SpacesNodes,
+  CtxDom,
+  SpaceItemKeys,
+  SpacesItemsDomain,
+  SpacesCtxDom,
+} from '../groups-tree/space'
 import type { SpacesListItem, SpacesTreeLevel, UseSpaceItemState } from '../groups-tree/space'
 import type { ExternExpand, InitialState, Reduce } from '../groups-tree/tree-common'
 import type { ListState } from '../internal'
@@ -29,7 +35,7 @@ export const GroupsTreeHOC = <
   expandExtern: ExternExpand<States, External, SpacesNodes<States>['root'], never, {}>,
   dataHooks: SpacesDataHooks<Filter, Items, States>,
   storeArgs: {
-    initialState: InitialState<States, SpacesTreeLevel, SpacesNodes<States>>
+    initialState: InitialState<States, SpacesTreeLevel, SpacesListItem<Items>, SpacesNodes<States>>
     reduce: Reduce<
       States,
       SpacesTreeLevel,

@@ -1,7 +1,7 @@
 export { makeTaxonomyGroupPartComponents } from './groups-tree/group-part/components'
 export { MultiSelectGroupPartTreeHOC } from './multi-select/GroupPartTree'
 export { SingleSelectGroupPartTreeHOC } from './single-select/GroupPartTreeSingle'
-export * from './multi-select/SpacesTree'
+export { MultiSelectSpacesTreeHOC } from './multi-select/SpacesTree'
 export { SingleSelectSpacesTreeHOC } from './single-select/SpacesTreeSingle'
 export { MultiSelectGroupsTreeHOC } from './multi-select/GroupsTree'
 export { emptySelectedGroups, hasGroupsSelection, setGroupPartIds } from './multi-select/groups.multi'
@@ -32,6 +32,7 @@ export type {
   SpacesItemsDomain,
   SpacesListItem,
   SpacesNodes,
+  SpaceItemKeys,
 } from './groups-tree/space'
 export type { UseSpaceItemState } from './groups-tree/space/types'
 export type {

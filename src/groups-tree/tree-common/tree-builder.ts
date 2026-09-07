@@ -6,10 +6,10 @@ import { InitialState, ListItemDomain, NodesDomain, type StatesDomain } from './
  * utility has no knowledge of specific domain names.
  */
 export const makeFitToChildren =
-  <States extends StatesDomain, Levels extends string, Nodes extends NodesDomain<States, Levels>>(
-    initialState: InitialState<States, Levels, Nodes>,
+  <ListItems extends ListItemDomain<Levels>, Levels extends string = StrKeys<ListItems>>() =>
+  <States extends StatesDomain, Nodes extends NodesDomain<States, Levels>>(
+    initialState: InitialState<States, Levels, ListItems, Nodes>,
   ) =>
-  <ListItems extends ListItemDomain<Levels>>() =>
   <L extends Levels>(
     level: L,
     getId: (key: string) => string,
@@ -28,7 +28,7 @@ export const makeFitToChildren =
     const result: Record<string, Nodes[L]['IState']> = {}
     for (const [key, item] of items) {
       const id = getId(key)
-      const node = children[key] ?? initialState[level](id, newParent, oldParent)
+      const node = children[key] ?? initialState[level](id, item, newParent, oldParent)
       result[key] = handleChild(id, item, node, oldChildren?.[key])
     }
     return result

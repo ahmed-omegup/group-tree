@@ -1,4 +1,4 @@
-import type { TaxonomyGroupPartCtxDom, UseTaxonomyItemState } from '../groups-tree/group-part'
+import type { TaxonomyGroupPartCtxDom, TaxonomyListItem, UseTaxonomyItemState } from '../groups-tree/group-part'
 import type { TaxonomyItemsDomain } from '../groups-tree/group-part'
 import type { GPRoot, GroupPartDataHooks } from '../groups-tree/GroupPartTree'
 import { GroupPartTreeHOC } from '../groups-tree/GroupPartTree'
@@ -14,7 +14,7 @@ export const MultiSelectGroupPartTreeHOC = <Filter, Items extends TaxonomyItemsD
   GroupPartTreeHOC<Filter, Items, MultiSelectStates, GroupPartExternalMulti, Ctx>(
     externExpandGroupPartMulti,
     {
-      initialState: groupPartInitialState<MultiSelectStates>(),
+      initialState: groupPartInitialState<TaxonomyListItem<Items>, MultiSelectStates>(),
       reduce: selectableGroupPartReduce,
     },
     dataHooks,

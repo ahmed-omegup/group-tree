@@ -23,9 +23,14 @@ export const makeGroupPartTreeFns = <
   States extends StatesDomain,
   Items extends TaxonomyItemsDomain,
 >(
-  initialState: InitialState<States, TaxonomyItemKeys, TaxonomyNodeLayers<States>>,
+  initialState: InitialState<
+    States,
+    TaxonomyItemKeys,
+    TaxonomyListItem<Items>,
+    TaxonomyNodeLayers<States>
+  >,
 ) => {
-  const fitToChildren = makeFitToChildren(initialState)<TaxonomyListItem<Items>>()
+  const fitToChildren = makeFitToChildren<TaxonomyListItem<Items>>()(initialState)
 
   const listsToGroupPartNode = (
     groupPartId: string | null,

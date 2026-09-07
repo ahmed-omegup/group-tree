@@ -1,4 +1,4 @@
-import type { UseTaxonomyItemState } from '../groups-tree/group-part'
+import type { TaxonomyListItem, UseTaxonomyItemState } from '../groups-tree/group-part'
 import { TaxonomyItemsDomain } from '../groups-tree/group-part'
 import { GPRoot, GroupPartDataHooks, GroupPartTreeHOC } from '../groups-tree/GroupPartTree'
 import { groupPartInitialState, isVisible } from '../internal'
@@ -12,7 +12,7 @@ export const SingleSelectGroupPartTreeHOC = <Filter, Items extends TaxonomyItems
   GroupPartTreeHOC<Filter, Items, SingleSelectStates, GroupPartExternalSingle, Ctx>(
     externExpandGroupPartSingle,
     {
-      initialState: groupPartInitialState<SingleSelectStates>(),
+      initialState: groupPartInitialState<TaxonomyListItem<Items>, SingleSelectStates>(),
       reduce: selectableGroupPartSingleReduce,
     },
     dataHooks,

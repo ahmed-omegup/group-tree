@@ -27,7 +27,12 @@ export const getStoreArgs = <
 >(
   { expand, extern }: ExternExpand<States, External, GPRoot<States>, never, {}>,
   storeArgs: {
-    initialState: InitialState<States, TaxonomyItemKeys, TaxonomyNodeLayers<States>>
+    initialState: InitialState<
+      States,
+      TaxonomyItemKeys,
+      TaxonomyListItem<Items>,
+      TaxonomyNodeLayers<States>
+    >
     reduce: Reduce<
       States,
       TaxonomyItemKeys,
@@ -66,7 +71,12 @@ export const GroupPartTreeHOC = <
 >(
   { expand, extern }: ExternExpand<States, External, GPRoot<States>, never, {}>,
   storeArgs: {
-    initialState: InitialState<States, TaxonomyItemKeys, TaxonomyNodeLayers<States>>
+    initialState: InitialState<
+      States,
+      TaxonomyItemKeys,
+      TaxonomyListItem<Items>,
+      TaxonomyNodeLayers<States>
+    >
     reduce: Reduce<
       States,
       TaxonomyItemKeys,

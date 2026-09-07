@@ -1,7 +1,7 @@
 import type { TaxonomyItemKeys, TaxonomyItemsDomain } from './groups-tree/group-part'
 import type { TaxonomyListItem, TaxonomyNodeLayers } from './groups-tree/group-part'
 import { getTaxonomyChildren } from './groups-tree/group-part/components'
-import type { CStateBrand, InitialState } from './groups-tree/tree-common'
+import type { CStateBrand, InitialState, ListItemDomain } from './groups-tree/tree-common'
 import type { IStateBrand, Reduce, StatesDomain } from './groups-tree/tree-common'
 
 type IState = IStateBrand & {
@@ -39,15 +39,20 @@ export type ReplaceIState<States extends StatesDomain, IState extends IStateBran
 } & Pick<States, OtherStates>
 
 type OtherStates = Exclude<keyof StatesDomain, 'IState'>
-const initialState = <States extends StatesDomain>(): InitialState<
+const initialState = <
+  Items extends ListItemDomain<TaxonomyItemKeys>,
+  States extends StatesDomain,
+>(): InitialState<
   ReplaceIState<States, IState>,
   TaxonomyItemKeys,
+  Items,
   TaxonomyNodeLayers<ReplaceIState<States, IState>>
 > => ({
-  groupPart: id => ({
+  groupPart: (id, item?: Items['groupPart'] & { collapsed?: unknown }) => ({
     child: { taxonomies: {} },
     item: {
       ...common,
+      ...(item?.collapsed === false && { collapsed: false }),
       childrenReady: true,
       type: 'groupPart',
       id,
