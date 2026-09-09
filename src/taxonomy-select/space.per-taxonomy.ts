@@ -37,18 +37,18 @@ export const selectableSpacePerTaxonomyReduce: Reduce<
   ...selectableGroupPartPerTaxonomyReduce,
   root: args => ({
     ...spacesReduce.root(args),
-    ...perTaxonomySelected('groupPart', args.eState),
+    ...perTaxonomySelected('many', args.eState),
   }),
   space: args => ({
     ...spacesReduce.space(args),
-    ...perTaxonomySelected('groupPart', args.eState),
+    ...perTaxonomySelected('many', args.eState),
   }),
 }
 
 const expandSpace = makeGroupPartPerTaxonomyExpand<'space'>()
 
 const expandRoot = makePerTaxonomyExpand<RootSelection, SpaceShapes['root']>(
-  (): TaxonomySelection => ({ type: 'groupPart', value: 'no' }),
+  (): TaxonomySelection => ({ type: 'many', value: 'no' }),
   (selection, { spaces }) => ({
     spaces: mapChildren(spaces, expandSpace, id => toSpaceSelection(selection, id)),
   }),

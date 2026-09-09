@@ -8,10 +8,10 @@ import type { TaxonomyListItem } from '../groups-tree/group-part'
 import type { EStateBrand, Reduce, StatesDomain } from '../groups-tree/tree-common'
 import { groupPartReduce, type InternalStates } from '../internal'
 
-/** One selected groupPart per taxonomy; a selected groupPart may hold many taxonomies. */
+/** `one`: a taxonomy (one selected groupPart). `many`: a groupPart or space (many taxonomies). */
 export type TaxonomySelection =
-  | ({ type: 'taxonomy' } & TSelection)
-  | ({ type: 'groupPart' } & GPSelection)
+  | ({ type: 'one' } & TSelection)
+  | ({ type: 'many' } & GPSelection)
 
 export type TSelection = ({ value: 'yes' } & THasSelection) | { value: 'no' }
 export type THasSelection = { subId: string } & GPHasSelection
@@ -54,11 +54,11 @@ export const selectableGroupPartPerTaxonomyReduce: Reduce<
 > = {
   groupPart: args => ({
     ...groupPartReduce.groupPart(args),
-    ...perTaxonomySelected('groupPart', args.eState),
+    ...perTaxonomySelected('many', args.eState),
   }),
   taxonomy: args => ({
     ...groupPartReduce.taxonomy(args),
-    ...perTaxonomySelected('taxonomy', args.eState),
+    ...perTaxonomySelected('one', args.eState),
   }),
 }
 
@@ -120,7 +120,7 @@ export const makeGroupPartPerTaxonomyExpand = <Type extends string>(): ExpandPer
   GroupPartLikeShape<Type>
 > =>
   makePerTaxonomyExpand<GPSelection, GroupPartLikeShape<Type>>(
-    (selection): TaxonomySelection => ({ type: 'groupPart', ...selection }),
+    (selection): TaxonomySelection => ({ type: 'many', ...selection }),
     (selection, { taxonomies }) => ({
       taxonomies: mapChildren(taxonomies, expandTaxonomy, id => toTaxonomySelection(selection, id)),
     }),
@@ -130,7 +130,7 @@ export const expandGroupPart = makeGroupPartPerTaxonomyExpand<'groupPart'>()
 
 export const expandTaxonomy: ExpandPerTaxonomy<TSelection, TaxonomyShapes['taxonomy']> =
   makePerTaxonomyExpand(
-    (selection): TaxonomySelection => ({ type: 'taxonomy', ...selection }),
+    (selection): TaxonomySelection => ({ type: 'one', ...selection }),
     (selection, { groupParts }) => ({
       groupParts: mapChildren(groupParts, expandGroupPart, id => toGroupPartSelection(selection, id)),
     }),
@@ -144,7 +144,7 @@ export type NodeWithTaxonomies = {
 
 export const findSelectedInGroupPart = (id: string, node?: NodeWithTaxonomies): GPSelection => {
   const selected = node?.item.selected
-  if (!node || selected?.type !== 'groupPart' || selected.value !== 'yes') return noGroupPart
+  if (!node || selected?.type !== 'many' || selected.value !== 'yes') return noGroupPart
   const children: GPHasSelection['children'] = {}
   for (const [taxId, child] of Object.entries(node.child.taxonomies)) {
     const tax = findSelectedInTaxonomy(join(id, taxId), child)
@@ -158,7 +158,7 @@ export const findSelectedInTaxonomy = (
   taxonomy?: TaxonomyNodeLayers<States>['taxonomy']['CState'],
 ): TSelection => {
   const selected = taxonomy?.item.selected
-  if (!taxonomy || selected?.type !== 'taxonomy' || selected.value !== 'yes') return noTaxonomy
+  if (!taxonomy || selected?.type !== 'one' || selected.value !== 'yes') return noTaxonomy
   const childId = [id, selected.subId].filter(Boolean).join('_')
   const gp = findSelectedInGroupPart(childId, taxonomy.child.groupParts[childId])
   return { value: 'yes', subId: selected.subId, children: gp.value === 'yes' ? gp.children : {} }
