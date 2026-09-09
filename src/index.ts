@@ -39,7 +39,9 @@ export type {
   TaxonomyItemsDomain,
   TaxonomyListItem,
   TaxonomyNodeLayers,
+  TaxonomyItemKeys,
   UseTaxonomyItemState,
+  UseGroupParts,
 } from './groups-tree/group-part/types'
 export type { MultiSelectStates } from './multi-select/multi'
 export type { SingleSelectStates, SingleSelection } from './single-select/single'

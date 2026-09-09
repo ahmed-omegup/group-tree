@@ -52,7 +52,7 @@ const initialState = <
     child: { taxonomies: {} },
     item: {
       ...common,
-      ...(item?.collapsed === false && { collapsed: false }),
+      ...((!item || item.collapsed === false) && { collapsed: false }),
       childrenReady: true,
       type: 'groupPart',
       id,
