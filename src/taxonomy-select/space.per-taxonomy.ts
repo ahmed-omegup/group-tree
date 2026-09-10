@@ -8,6 +8,7 @@ import {
   makePerTaxonomyExpand,
   mapChildren,
   noGroupPart,
+  manyFromChildren,
   perTaxonomySelected,
   selectableGroupPartPerTaxonomyReduce,
   type GPHasSelection,
@@ -41,7 +42,7 @@ export const selectableSpacePerTaxonomyReduce: Reduce<
   }),
   space: args => ({
     ...spacesReduce.space(args),
-    ...perTaxonomySelected('many', args.eState),
+    selected: manyFromChildren(args.child.taxonomies, args.eState),
   }),
 }
 

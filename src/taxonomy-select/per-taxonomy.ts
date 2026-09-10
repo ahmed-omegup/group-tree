@@ -1,7 +1,4 @@
-import type {
-  TaxonomyNodeLayers,
-  TaxonomyShapes,
-} from '../groups-tree/group-part'
+import type { TaxonomyNodeLayers, TaxonomyShapes } from '../groups-tree/group-part'
 import type { TreeNode, TreeShape } from '../groups-tree/tree-common'
 import type { TaxonomyItemKeys, TaxonomyItemsDomain } from '../groups-tree/group-part'
 import type { TaxonomyListItem } from '../groups-tree/group-part'
@@ -9,14 +6,13 @@ import type { EStateBrand, Reduce, StatesDomain } from '../groups-tree/tree-comm
 import { groupPartReduce, type InternalStates } from '../internal'
 
 /** `one`: a taxonomy (one selected groupPart). `many`: a groupPart or space (many taxonomies). */
-export type TaxonomySelection =
-  | ({ type: 'one' } & TSelection)
-  | ({ type: 'many' } & GPSelection)
+export type TaxonomySelection = ({ type: 'one' } & TSelection) | ({ type: 'many' } & GPSelection)
 
-export type TSelection = ({ value: 'yes' } & THasSelection) | { value: 'no' }
+export type TSelection = ({ value: 'yes' | 'now' } & THasSelection) | { value: 'no' }
 export type THasSelection = { subId: string } & GPHasSelection
-export type GPSelection = ({ value: 'yes' } & GPHasSelection) | { value: 'no' }
-export type GPHasSelection = { children: { [TaxonomySubId: string]: THasSelection } }
+export type GPSelection = ({ value: 'yes' | 'now' } & GPHasSelection) | { value: 'no' }
+type TSectectionDict = { [TaxonomySubId: string]: THasSelection }
+export type GPHasSelection = { children: TSectectionDict }
 
 type EState = EStateBrand & {
   v: TaxonomySelection
@@ -38,12 +34,74 @@ export type { States as PerTaxonomySelectStates }
 export const noTaxonomy: TSelection = { value: 'no' }
 export const noGroupPart: GPSelection = { value: 'no' }
 
+export const lastSegment = (id: string) => id.split('_').at(-1)!
+const join = (id: string, childId: string) => [id, lastSegment(childId)].filter(Boolean).join('_')
+
+const noOne: TaxonomySelection = { type: 'one', value: 'no' }
+const noMany: TaxonomySelection = { type: 'many', value: 'no' }
+
 export const perTaxonomySelected = <L extends TaxonomySelection['type']>(
   type: L,
   eState: EState | undefined,
 ): Pick<CState, 'selected'> => ({
-  selected: eState?.v ?? ({ type, value: 'no' } as Extract<TaxonomySelection, { type: L }>),
+  selected: eState?.v ?? { type, value: 'no' },
 })
+
+
+type Pred<T, V> = (x: T) => x is T & V
+const h =
+  <T, K extends keyof T, V>(k: K, pred: Pred<T[K], V>): Pred<T, Record<K, V>> =>
+  (x: T): x is T & Record<K, V> =>
+    pred(x[k])
+const eq =
+  <T, V>(v: V): Pred<T, V> =>
+  (x: T): x is T & V =>
+    (x as {}) === v
+
+const findSelected = (nodes: Record<string, { item: CState }>, value: 'now' | 'yes') =>
+  Object.entries(nodes).find(h(1, h('item', h('selected', h('value', eq(value))))))
+
+const oneFromChildren = (
+  groupParts: Record<string, { item: CState }>,
+  eState: EState | undefined,
+): TaxonomySelection & { type: 'one' } => {
+  const eOne = eState?.v.type === 'one' && eState.v.value === 'yes' ? eState.v : undefined
+  const hit = findSelected(groupParts, 'now') ?? findSelected(groupParts, 'yes')
+  if (hit) {
+    const [id, node] = hit
+    return {
+      ...node.item.selected,
+      type: 'one',
+      subId: lastSegment(id),
+    }
+  }
+  if (eOne && !Object.keys(groupParts).some(id => lastSegment(id) === eOne.subId)) return eOne
+  return noOne
+}
+
+export const manyFromChildren = (
+  taxonomies: Record<string, { item: CState }>,
+  eState: EState | undefined,
+): TaxonomySelection & { type: 'many' } => {
+  const eMany = eState?.v.type === 'many' && eState.v.value !== 'no' ? eState.v : undefined
+  if (eMany?.value === 'now') return eMany
+
+  const children = { ...eMany?.children }
+  for (const [id, { item }] of Object.entries(taxonomies)) {
+    const sel = item.selected
+    const k = lastSegment(id)
+    if (sel.type === 'one' && sel.value !== 'no')
+      children[k] = { subId: sel.subId, children: sel.children }
+    else delete children[k]
+  }
+  if (Object.keys(children).length === 0)
+    return eMany && Object.keys(eMany.children).length === 0 ? eMany : noMany
+  return {
+    type: 'many',
+    value: findSelected(taxonomies, 'now') ? 'now' : 'yes',
+    children,
+  }
+}
 
 export const selectableGroupPartPerTaxonomyReduce: Reduce<
   States,
@@ -54,18 +112,15 @@ export const selectableGroupPartPerTaxonomyReduce: Reduce<
 > = {
   groupPart: args => ({
     ...groupPartReduce.groupPart(args),
-    ...perTaxonomySelected('many', args.eState),
+    selected: manyFromChildren(args.child.taxonomies, args.eState),
   }),
   taxonomy: args => ({
     ...groupPartReduce.taxonomy(args),
-    ...perTaxonomySelected('one', args.eState),
+    selected: oneFromChildren(args.child.groupParts, args.eState),
   }),
 }
 
 type IState = States['IState']
-
-export const lastSegment = (id: string) => id.split('_').at(-1)!
-const join = (id: string, childId: string) => [id, lastSegment(childId)].filter(Boolean).join('_')
 
 export const toGroupPartSelection = (selection: TSelection, groupPartId: string): GPSelection =>
   selection.value === 'yes' && selection.subId === lastSegment(groupPartId)
@@ -132,7 +187,9 @@ export const expandTaxonomy: ExpandPerTaxonomy<TSelection, TaxonomyShapes['taxon
   makePerTaxonomyExpand(
     (selection): TaxonomySelection => ({ type: 'one', ...selection }),
     (selection, { groupParts }) => ({
-      groupParts: mapChildren(groupParts, expandGroupPart, id => toGroupPartSelection(selection, id)),
+      groupParts: mapChildren(groupParts, expandGroupPart, id =>
+        toGroupPartSelection(selection, id),
+      ),
     }),
   )
 
@@ -142,13 +199,17 @@ export type NodeWithTaxonomies = {
   child: { taxonomies: Record<string, TaxonomyNodeLayers<States>['taxonomy']['CState']> }
 }
 
-export const findSelectedInGroupPart = (id: string, node?: NodeWithTaxonomies): GPSelection => {
+export const findSelectedInGroupPart = (gpId: string, node?: NodeWithTaxonomies): GPSelection => {
   const selected = node?.item.selected
-  if (!node || selected?.type !== 'many' || selected.value !== 'yes') return noGroupPart
-  const children: GPHasSelection['children'] = {}
-  for (const [taxId, child] of Object.entries(node.child.taxonomies)) {
-    const tax = findSelectedInTaxonomy(join(id, taxId), child)
-    if (tax.value === 'yes') children[lastSegment(taxId)] = { subId: tax.subId, children: tax.children }
+  if (!node || selected?.type !== 'many' || selected.value === 'no') return noGroupPart
+  const children: TSectectionDict = {}
+  for (const taxSubId of Object.keys(selected.children)) {
+    const childId = join(gpId, taxSubId)
+    const tax = findSelectedInTaxonomy(childId, node.child.taxonomies[childId])
+    children[taxSubId] =
+      tax.value !== 'no'
+        ? { subId: tax.subId, children: tax.children }
+        : selected.children[taxSubId]!
   }
   return { value: 'yes', children }
 }
@@ -158,8 +219,12 @@ export const findSelectedInTaxonomy = (
   taxonomy?: TaxonomyNodeLayers<States>['taxonomy']['CState'],
 ): TSelection => {
   const selected = taxonomy?.item.selected
-  if (!taxonomy || selected?.type !== 'one' || selected.value !== 'yes') return noTaxonomy
-  const childId = [id, selected.subId].filter(Boolean).join('_')
+  if (!taxonomy || selected?.type !== 'one' || selected.value === 'no') return noTaxonomy
+  const childId = join(id, selected.subId)
   const gp = findSelectedInGroupPart(childId, taxonomy.child.groupParts[childId])
-  return { value: 'yes', subId: selected.subId, children: gp.value === 'yes' ? gp.children : {} }
+  return {
+    value: 'yes',
+    subId: selected.subId,
+    children: gp.value !== 'no' ? gp.children : selected.children,
+  }
 }
